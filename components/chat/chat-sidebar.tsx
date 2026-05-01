@@ -1,0 +1,97 @@
+"use client"
+
+import { Plus, Globe, Moon, Sun, RotateCcw } from "lucide-react"
+import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { AIWordmark } from "@/components/ai-orb"
+import { ProfileCard } from "./profile-card"
+import { useApp } from "@/lib/store"
+import { LOCALE_LABEL, t } from "@/lib/i18n"
+import type { Locale } from "@/lib/types"
+import { cn } from "@/lib/utils"
+
+interface Props {
+  onNewChat: () => void
+}
+
+export function ChatSidebar({ onNewChat }: Props) {
+  const { profile, setLocale, reset } = useApp()
+  const { theme, setTheme } = useTheme()
+  const locale = profile.locale
+
+  return (
+    <aside className="hidden w-[300px] shrink-0 flex-col gap-4 border-r border-sidebar-border bg-sidebar/50 p-4 backdrop-blur md:flex">
+      <AIWordmark />
+
+      <Button
+        onClick={onNewChat}
+        className="h-10 w-full justify-start rounded-xl bg-primary/10 text-foreground hover:bg-primary/20"
+        variant="ghost"
+      >
+        <Plus className="mr-2 size-4 text-primary" />
+        {t(locale, "newChat")}
+      </Button>
+
+      <ProfileCard />
+
+      <div className="mt-auto space-y-2">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 flex-1 justify-start gap-2 rounded-xl border-sidebar-border bg-background/40"
+              >
+                <Globe className="size-3.5" />
+                <span className="truncate">{LOCALE_LABEL[locale]}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {(Object.keys(LOCALE_LABEL) as Locale[]).map((l) => (
+                <DropdownMenuItem
+                  key={l}
+                  onClick={() => setLocale(l)}
+                  className={cn(locale === l && "bg-accent/40")}
+                >
+                  {LOCALE_LABEL[l]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="size-9 rounded-xl border-sidebar-border bg-background/40 p-0"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="size-4" />
+            ) : (
+              <Moon className="size-4" />
+            )}
+          </Button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm(t(locale, "resetConfirm"))) reset()
+          }}
+          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+        >
+          <RotateCcw className="size-3.5" />
+          {t(locale, "resetAll")}
+        </button>
+      </div>
+    </aside>
+  )
+}
