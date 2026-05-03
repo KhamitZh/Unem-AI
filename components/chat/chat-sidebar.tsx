@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Globe, Moon, Sun, RotateCcw } from "lucide-react"
+import { Plus, Globe, Moon, Sun, RotateCcw, MessageSquare } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,9 +18,17 @@ import { cn } from "@/lib/utils"
 
 interface Props {
   onNewChat: () => void
+  sessions: { id: string; title: string; updated_at: string }[]
+  currentSessionId: string | null
+  onSelectSession: (id: string) => void
 }
 
-export function ChatSidebar({ onNewChat }: Props) {
+export function ChatSidebar({
+  onNewChat,
+  sessions,
+  currentSessionId,
+  onSelectSession,
+}: Props) {
   const { profile, setLocale, reset } = useApp()
   const { theme, setTheme } = useTheme()
   const locale = profile.locale
@@ -38,9 +46,31 @@ export function ChatSidebar({ onNewChat }: Props) {
         {t(locale, "newChat")}
       </Button>
 
+      {/* Чаттар тізімі */}
+      <div className="flex-1 overflow-y-auto space-y-1">
+        {sessions.length > 0 && (
+          <p className="px-2 text-[11px] uppercase tracking-widest text-muted-foreground mb-2">
+            Чаттар тарихы
+          </p>
+        )}
+        {sessions.map((session) => (
+          <button
+            key={session.id}
+            onClick={() => onSelectSession(session.id)}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-left transition-colors hover:bg-muted/40",
+              currentSessionId === session.id && "bg-primary/10 text-primary"
+            )}
+          >
+            <MessageSquare className="size-3.5 shrink-0 opacity-60" />
+            <span className="truncate">{session.title}</span>
+          </button>
+        ))}
+      </div>
+
       <ProfileCard />
 
-      <div className="mt-auto space-y-2">
+      <div className="space-y-2">
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -65,7 +95,6 @@ export function ChatSidebar({ onNewChat }: Props) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
           <Button
             variant="outline"
             size="sm"
@@ -80,7 +109,6 @@ export function ChatSidebar({ onNewChat }: Props) {
             )}
           </Button>
         </div>
-
         <button
           type="button"
           onClick={() => {

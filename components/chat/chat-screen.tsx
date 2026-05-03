@@ -36,7 +36,10 @@ export function ChatScreen() {
   const locale = profile.locale
   const { theme, setTheme } = useTheme()
   const [input, setInput] = useState("")
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [sessions, setSessions] = useState<any[]>([])
   const scrollerRef = useRef<HTMLDivElement>(null)
+  const prevStreamingRef = useRef(false)
 
   const transport = useMemo(
     () =>
@@ -69,16 +72,101 @@ export function ChatScreen() {
 
   const isStreaming = status === "streaming" || status === "submitted"
 
-  // auto-scroll
+  // Сессиялар тізімін жүктеу
+  useEffect(() => {
+    async function loadSessions() {
+      const res = await fetch("/api/sessions")
+      const data = await res.json()
+      if (data.sessions?.length) {
+        setSessions(data.sessions)
+      }
+    }
+    loadSessions()
+  }, [])
+
+  // Сессия хабарламаларын жүктеу
+  useEffect(() => {
+    if (!sessionId) return
+    async function loadHistory() {
+      const res = await fetch(`/api/history?session_id=${sessionId}`)
+      const data = await res.json()
+      if (data.messages?.length) {
+        setMessages(
+          data.messages.map((m: any) => ({
+            id: m.id,
+            role: m.role,
+            parts: [{ type: "text", text: m.content }],
+          }))
+        )
+      } else {
+        setMessages([])
+      }
+    }
+    loadHistory()
+  }, [sessionId])
+
+  // AI жауабын сақтау
+  useEffect(() => {
+    if (prevStreamingRef.current && !isStreaming && messages.length > 0) {
+      const last = messages[messages.length - 1]
+      if (last.role === "assistant") {
+        const text = last.parts
+          ?.filter((p: any) => p.type === "text")
+          .map((p: any) => p.text)
+          .join("")
+        if (text && sessionId) {
+          fetch("/api/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              role: "assistant",
+              content: text,
+              session_id: sessionId,
+            }),
+          })
+        }
+      }
+    }
+    prevStreamingRef.current = isStreaming
+  }, [isStreaming, messages, sessionId])
+
+  // Auto-scroll
   useEffect(() => {
     const el = scrollerRef.current
     if (!el) return
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
   }, [messages, isStreaming])
 
-  function send(text: string) {
+  async function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed) return
+
+    let currentSessionId = sessionId
+
+    // Жаңа сессия жасау
+    if (!currentSessionId) {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmed.slice(0, 50) }),
+      })
+      const data = await res.json()
+      currentSessionId = data.session.id
+      setSessionId(currentSessionId)
+      setSessions((prev) => [data.session, ...prev])
+    }
+
+    // Пайдаланушы хабарын сақтау
+    fetch("/api/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role: "user",
+        content: trimmed,
+        session_id: currentSessionId,
+      }),
+    })
+
     sendMessage({ text: trimmed })
     setInput("")
   }
@@ -86,22 +174,26 @@ export function ChatScreen() {
   function newChat() {
     setMessages([])
     setInput("")
+    setSessionId(null)
   }
 
   const empty = messages.length === 0
 
   return (
     <main className="relative flex h-dvh w-full overflow-hidden">
-      {/* ambient bg layer */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-mesh opacity-60"
       />
 
-      <ChatSidebar onNewChat={newChat} />
+      <ChatSidebar
+        onNewChat={newChat}
+        sessions={sessions}
+        currentSessionId={sessionId}
+        onSelectSession={(id) => setSessionId(id)}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* header */}
         <header className="flex items-center justify-between gap-3 border-b border-border/60 bg-background/40 px-3 py-3 backdrop-blur md:px-6">
           <div className="flex items-center gap-2 md:hidden">
             <Sheet>
@@ -134,7 +226,7 @@ export function ChatScreen() {
           <div className="hidden items-center gap-2.5 md:flex">
             <span className="size-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm text-muted-foreground">
-              {t(locale, "online")} · gpt-5-mini
+              {t(locale, "online")} · gpt-4o-mini
             </span>
           </div>
 
@@ -176,11 +268,7 @@ export function ChatScreen() {
           </div>
         </header>
 
-        {/* messages / empty state */}
-        <div
-          ref={scrollerRef}
-          className="nice-scroll flex-1 overflow-y-auto"
-        >
+        <div ref={scrollerRef} className="nice-scroll flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8">
             {empty ? (
               <EmptyState onPick={(s) => send(s)} userName={profile.name} />
@@ -206,7 +294,6 @@ export function ChatScreen() {
           </div>
         </div>
 
-        {/* composer */}
         <div className="border-t border-border/60 bg-background/40 backdrop-blur">
           <div className="mx-auto w-full max-w-3xl px-3 py-3 md:px-8 md:py-4">
             <Composer
@@ -278,7 +365,6 @@ function EmptyState({
       <p className="mt-2 max-w-md text-pretty text-sm text-muted-foreground md:text-base">
         {t(locale, "finishOnboarding")}
       </p>
-
       <div className="mt-8 w-full max-w-xl">
         <div className="mb-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
           {t(locale, "suggestions")}
