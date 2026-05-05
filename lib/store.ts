@@ -27,6 +27,11 @@ interface State {
   setIncome: (b: IncomeBracket, custom?: number | null) => void
   addExpensesFromText: (text: string) => Expense[]
   addGoalFromText: (text: string) => Goal | null
+  addExpense: (expense: Omit<Expense, "id" | "createdAt">) => void
+  removeExpense: (id: string) => void
+  addGoal: (goal: Omit<Goal, "id" | "createdAt">) => void
+  removeGoal: (id: string) => void
+  updateIncome: (amount: number) => void
   reset: () => void
   setHydrated: () => void
 }
@@ -152,6 +157,37 @@ export const useApp = create<State>()(
         if (!goal) return null
         set({ goals: [...get().goals, goal] })
         return goal
+      },
+      addExpense: (expense) => {
+        set({
+          expenses: [
+            ...get().expenses,
+            { ...expense, id: crypto.randomUUID(), createdAt: Date.now() },
+          ],
+        })
+      },
+      removeExpense: (id) => {
+        set({ expenses: get().expenses.filter((e) => e.id !== id) })
+      },
+      addGoal: (goal) => {
+        set({
+          goals: [
+            ...get().goals,
+            { ...goal, id: crypto.randomUUID(), createdAt: Date.now() },
+          ],
+        })
+      },
+      removeGoal: (id) => {
+        set({ goals: get().goals.filter((g) => g.id !== id) })
+      },
+      updateIncome: (amount) => {
+        set({
+          profile: {
+            ...get().profile,
+            estimatedIncome: amount,
+            customIncome: amount,
+          },
+        })
       },
       reset: () =>
         set({

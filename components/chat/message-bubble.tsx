@@ -45,7 +45,7 @@ export function MessageBubble({ message, streaming }: Props) {
       >
         {!isUser && (
           <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            ҮнемАІ
+            Unem AI
           </div>
         )}
         <div className="whitespace-pre-wrap text-pretty">

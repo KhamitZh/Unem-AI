@@ -83,7 +83,7 @@ export default function AuthPage() {
           {mode === "login" ? "Кіру" : mode === "register" ? "Тіркелу" : "Паролді ұмыттым"}
         </h1>
         <p className="text-center text-muted-foreground text-sm mb-6">
-          {mode === "login" ? "ҮнемАІ-ға қош келдіңіз" : mode === "register" ? "Жаңа аккаунт жасау" : "Email енгізіңіз"}
+          {mode === "login" ? "Unem AI-ға қош келдіңіз" : mode === "register" ? "Жаңа аккаунт жасау" : "Email енгізіңіз"}
         </p>
 
         <div className="space-y-4">

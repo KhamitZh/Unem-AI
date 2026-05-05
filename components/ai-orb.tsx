@@ -70,7 +70,7 @@ export function AIWordmark({ className }: { className?: string }) {
     <div className={cn("inline-flex items-center gap-2.5", className)}>
       <AIOrb size={28} />
       <span className="font-display text-[1.35rem] leading-none tracking-tight">
-        ҮнемАІ
+        Unem AI
       </span>
     </div>
   )

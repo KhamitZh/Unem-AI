@@ -1,0 +1,160 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, User, Calendar, TrendingUp, TrendingDown, Target } from "lucide-react"
+import { createClient } from "@/lib/supabase"
+import { useApp } from "@/lib/store"
+import { t } from "@/lib/i18n"
+
+function fmt(n: number): string {
+  if (!n || n <= 0) return "—"
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ₸`
+  if (n >= 1_000) return `${Math.round(n / 1000)}k ₸`
+  return `${n} ₸`
+}
+
+export default function ProfilePage() {
+  const router = useRouter()
+  const supabase = createClient()
+  const { profile, expenses, goals } = useApp()
+  const locale = profile.locale
+  const [user, setUser] = useState<any>(null)
+  const [joinDate, setJoinDate] = useState<string>("")
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+      if (data.user?.created_at) {
+        const date = new Date(data.user.created_at)
+        setJoinDate(date.toLocaleDateString(
+          locale === "kk" ? "kk-KZ" : locale === "ru" ? "ru-RU" : "en-US",
+          { year: "numeric", month: "long", day: "numeric" }
+        ))
+      }
+    })
+  }, [locale])
+
+  const income = profile.estimatedIncome ?? 0
+  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
+  const savings = Math.max(income - totalExpenses, 0)
+  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur px-4 py-3 flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="rounded-full p-2 hover:bg-muted/40 transition-colors"
+        >
+          <ArrowLeft className="size-5" />
+        </button>
+        <h1 className="text-lg font-semibold">{t(locale, "profileTitle")}</h1>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+
+        {/* Аватар + Аты */}
+        <div className="rounded-2xl border border-border bg-card p-6 flex flex-col items-center text-center">
+          <div className="size-20 rounded-full bg-primary/15 flex items-center justify-center text-primary text-3xl font-bold mb-4">
+            {(profile.name?.[0] ?? user?.email?.[0] ?? "?").toUpperCase()}
+          </div>
+          <h2 className="text-xl font-bold">{profile.name ?? "—"}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
+          {joinDate && (
+            <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
+              <Calendar className="size-3.5" />
+              <span>{t(locale, "registered")}: {joinDate}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Қаржы статистикасы */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t(locale, "financeOverview")}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 divide-x divide-y divide-border">
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="size-4 text-primary" />
+                <span className="text-xs text-muted-foreground">{t(locale, "income")}</span>
+              </div>
+              <p className="font-mono font-bold text-lg">{fmt(income)}</p>
+              <p className="text-xs text-muted-foreground">{t(locale, "perMonth")}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="size-4 text-foreground/70" />
+                <span className="text-xs text-muted-foreground">{t(locale, "expenses")}</span>
+              </div>
+              <p className="font-mono font-bold text-lg">{fmt(totalExpenses)}</p>
+              <p className="text-xs text-muted-foreground">{t(locale, "perMonth")}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="size-4 text-green-500" />
+                <span className="text-xs text-muted-foreground">{t(locale, "savingsWord")}</span>
+              </div>
+              <p className="font-mono font-bold text-lg text-primary">{fmt(savings)}</p>
+              <p className="text-xs text-muted-foreground">{t(locale, "perMonth")}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="size-4 text-accent" />
+                <span className="text-xs text-muted-foreground">{t(locale, "savingsRate")}</span>
+              </div>
+              <p className="font-mono font-bold text-lg">{savingsRate}%</p>
+              <p className="text-xs text-muted-foreground">{t(locale, "perMonth")}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Мақсаттар */}
+        {goals.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t(locale, "goals")}
+              </p>
+            </div>
+            <div className="divide-y divide-border">
+              {goals.map((g) => {
+                const months = savings > 0 ? Math.ceil(g.price / savings) : null
+                return (
+                  <div key={g.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{g.title}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{fmt(g.price)}</p>
+                    </div>
+                    {months && (
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-mono font-medium">≈ {months} {t(locale, "months")}</p>
+                        <p className="text-xs text-muted-foreground">{t(locale, "timeToGoal")}</p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Баптауларға өту */}
+        <button
+          onClick={() => router.push("/settings")}
+          className="w-full rounded-2xl border border-border bg-card px-4 py-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <User className="size-4 text-muted-foreground" />
+            <span className="text-sm">{t(locale, "goToSettings")}</span>
+          </div>
+          <ArrowLeft className="size-4 text-muted-foreground rotate-180" />
+        </button>
+
+      </div>
+    </div>
+  )
+}

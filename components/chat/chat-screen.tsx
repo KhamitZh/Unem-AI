@@ -151,6 +151,10 @@ export function ChatScreen() {
         body: JSON.stringify({ title: trimmed.slice(0, 50) }),
       })
       const data = await res.json()
+      if (!data.session) {
+        console.error("Session жасалмады:", data)
+        return
+      }
       currentSessionId = data.session.id
       setSessionId(currentSessionId)
       setSessions((prev) => [data.session, ...prev])
@@ -176,6 +180,36 @@ export function ChatScreen() {
     setInput("")
     setSessionId(null)
   }
+  async function deleteSession(id: string) {
+  await fetch(`/api/sessions?id=${id}`, { method: "DELETE" })
+  setSessions((prev) => prev.filter((s) => s.id !== id))
+    if (sessionId === id) {
+      setMessages([])
+      setSessionId(null)
+    }
+  }
+
+  async function renameSession(id: string, title: string) {
+    await fetch("/api/sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, title }),
+    })
+    setSessions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, title } : s))
+    )
+  }
+
+  async function pinSession(id: string, pinned: boolean) {
+    await fetch("/api/sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, pinned }),
+    })
+    setSessions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, pinned } : s))
+    )
+  }
 
   const empty = messages.length === 0
 
@@ -191,6 +225,9 @@ export function ChatScreen() {
         sessions={sessions}
         currentSessionId={sessionId}
         onSelectSession={(id) => setSessionId(id)}
+        onDeleteSession={deleteSession}
+        onRenameSession={renameSession}
+        onPinSession={pinSession}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">

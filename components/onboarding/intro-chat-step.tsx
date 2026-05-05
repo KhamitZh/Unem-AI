@@ -92,7 +92,7 @@ export function IntroChatStep({ variant }: Props) {
         <AIOrb size={40} />
         <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-border bg-card/70 p-4 leading-relaxed shadow-sm backdrop-blur">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">
-            ҮнемАІ
+            Unem AI
           </div>
           <p className="mt-1 text-pretty">
             {typed}

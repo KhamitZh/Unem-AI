@@ -23,18 +23,18 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const { data: sessions } = await supabase
-    .from("sessions")
+  const { data: finances } = await supabase
+    .from("finances")
     .select("*")
     .eq("user_id", user.id)
-    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
 
-  return NextResponse.json({ sessions })
+  return NextResponse.json({ finances })
 }
 
 export async function POST(req: Request) {
   const cookieStore = await cookies()
-  const { title } = await req.json()
+  const { type, title, amount, currency, period_days } = await req.json()
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,19 +54,19 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const { data: session } = await supabase
-    .from("sessions")
-    .insert({ user_id: user.id, title: title || "Жаңа чат" })
+  const { data } = await supabase
+    .from("finances")
+    .insert({ user_id: user.id, type, title, amount, currency, period_days })
     .select()
     .single()
 
-  return NextResponse.json({ session })
+  return NextResponse.json({ finance: data })
 }
 
 export async function DELETE(req: Request) {
   const cookieStore = await cookies()
   const { searchParams } = new URL(req.url)
-  const sessionId = searchParams.get("id")
+  const id = searchParams.get("id")
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -86,14 +86,14 @@ export async function DELETE(req: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  await supabase.from("sessions").delete().eq("id", sessionId).eq("user_id", user.id)
+  await supabase.from("finances").delete().eq("id", id).eq("user_id", user.id)
 
   return NextResponse.json({ success: true })
 }
 
 export async function PATCH(req: Request) {
   const cookieStore = await cookies()
-  const { id, title } = await req.json()
+  const { id, ...updates } = await req.json()
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -113,11 +113,7 @@ export async function PATCH(req: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  await supabase
-    .from("sessions")
-    .update({ title })
-    .eq("id", id)
-    .eq("user_id", user.id)
+  await supabase.from("finances").update(updates).eq("id", id).eq("user_id", user.id)
 
   return NextResponse.json({ success: true })
 }

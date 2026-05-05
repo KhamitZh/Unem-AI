@@ -197,4 +197,21 @@
     background-clip: padding-box;
   }
   .nice-scroll::-webkit-scrollbar-track { background: transparent; }
+
 }
+
+/* Input focus glow effect */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15),
+                0 0 12px hsl(var(--primary) / 0.1);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
+  }

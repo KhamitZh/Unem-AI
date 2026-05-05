@@ -19,13 +19,13 @@ const display = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: "ҮнемАІ — Жеке қаржы ИИ-кеңесшің",
+  title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
   description:
-    "ҮнемАІ — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші: үнемдеу, мақсатқа жинау, инвестициялық сауаттылық.",
+    "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші: үнемдеу, мақсатқа жинау, инвестициялық сауаттылық.",
   generator: "v0.app",
-  applicationName: "ҮнемАІ",
+  applicationName: "Unem AI",
   keywords: [
-    "ҮнемАІ",
+    "Unem AI",
     "финансы",
     "qarjy",
     "savings",

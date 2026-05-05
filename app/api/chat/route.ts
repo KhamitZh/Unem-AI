@@ -16,7 +16,7 @@ interface ChatBody {
   }
 }
 
-const SYSTEM_BASE = `You are ҮнемАІ — a warm, encouraging, modern AI personal-finance advisor for Kazakhstan.
+const SYSTEM_BASE = `You are Unem AI — a warm, encouraging, modern AI personal-finance advisor for Kazakhstan.
 
 Your mission:
 1. Help the user save money and reduce unnecessary spending.
