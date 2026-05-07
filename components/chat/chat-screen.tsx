@@ -32,6 +32,7 @@ import { ProfileCard } from "./profile-card"
 import { Suggestions } from "./suggestions"
 import { NotificationBanner } from "./notification-banner"
 import { GoalChecker } from "./goal-checker"
+import { BottomNav } from "./bottom-nav"
 
 export function ChatScreen() {
   const { profile, expenses, goals } = useApp()
@@ -221,6 +222,7 @@ export function ChatScreen() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-mesh opacity-60"
       />
+      <BottomNav />
       <NotificationBanner />
       <GoalChecker />
       <ChatSidebar
