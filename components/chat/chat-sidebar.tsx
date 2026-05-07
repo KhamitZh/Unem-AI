@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation"
 import {
   Plus, MessageSquare, Trash2, Pencil, Check, X,
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown,
-  Target, Settings, Pin, PinOff
+  Target, Settings, Pin, PinOff, BarChart2, DollarSign
 } from "lucide-react"
 import { AIWordmark } from "@/components/ai-orb"
 import { useApp } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
+
 
 interface Session {
   id: string
@@ -131,9 +132,11 @@ export function ChatSidebar({
   }
 
   const financeLinks = [
-    { icon: TrendingUp, key: "income" as const, href: "/finances/income", color: "text-primary" },
-    { icon: TrendingDown, key: "expenses" as const, href: "/finances/expenses", color: "text-foreground/70" },
-    { icon: Target, key: "goals" as const, href: "/finances/goals", color: "text-accent" },
+  { icon: TrendingUp, key: "income" as const, href: "/finances/income", color: "text-primary" },
+  { icon: TrendingDown, key: "expenses" as const, href: "/finances/expenses", color: "text-foreground/70" },
+  { icon: Target, key: "goals" as const, href: "/finances/goals", color: "text-accent" },
+  { icon: BarChart2, key: "analytics" as const, href: "/analytics", color: "text-blue-400" },
+  { icon: DollarSign, key: "currency" as const, href: "/currency", color: "text-yellow-400" },
   ]
 
   return (

@@ -130,6 +130,10 @@ const kk: Dict = {
   noGoals: "Мақсат қосылмаған",
   monthlySavings: "Ай сайынғы жинақ",
   timeToReach: "Жету уақыты",
+  analytics: "Талдау",
+  currency: "Валюта бағамы",
+  converter: "Конвертер",
+  ratesVsKZT: "Теңгеге қатысты бағам",
 }
 
 const ru: Dict = {
@@ -251,6 +255,10 @@ const ru: Dict = {
   noGoals: "Цели не добавлены",
   monthlySavings: "Ежемесячные сбережения",
   timeToReach: "Срок достижения",
+  analytics: "Аналитика",
+  currency: "Курс валют",
+  converter: "Конвертер",
+  ratesVsKZT: "Курс к тенге",
 }
 
 const en: Dict = {
@@ -372,6 +380,10 @@ const en: Dict = {
   noGoals: "No goals added",
   monthlySavings: "Monthly savings",
   timeToReach: "Time to reach",
+  analytics: "Analytics",
+  currency: "Exchange rates",
+  converter: "Converter",
+  ratesVsKZT: "Rates vs KZT",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }

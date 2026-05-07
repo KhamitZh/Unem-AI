@@ -55,6 +55,20 @@ export default function RootLayout({
       className={`${manrope.variable} ${display.variable} bg-background`}
     >
       <body className="min-h-dvh font-sans antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(reg) { console.log('SW registered'); })
+                    .catch(function(err) { console.log('SW error:', err); });
+                });
+              }
+            `,
+          }}
+        />
+        
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

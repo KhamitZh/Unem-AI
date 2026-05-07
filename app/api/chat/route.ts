@@ -1,5 +1,7 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai"
 import { openai } from "@ai-sdk/openai"
+import { cookies } from "next/headers"
+import { createServerClient } from "@supabase/ssr"
 
 export const maxDuration = 60
 
@@ -32,7 +34,22 @@ Style:
     where savingsPerMonth = max(income - expenses, 0)
 - If the user has not given enough info, ask one clarifying question.
 - Always end with a small actionable next step.
-- Do NOT recommend illegal, gambling, or high-risk leveraged products.`
+- Do NOT recommend illegal, gambling, or high-risk leveraged products.
+
+MEMORY INSTRUCTIONS:
+- You have access to user memories from previous conversations.
+- Use these memories to personalize your advice.
+- If you learn new important facts about the user (new job, new goal, income change, spending habit), 
+  output a special JSON block at the END of your response like this:
+  <memory_update>
+  [
+    {"key": "job", "value": "software engineer"},
+    {"key": "main_goal", "value": "buy apartment in Almaty for 25M tenge"},
+    {"key": "spending_habit", "value": "spends too much on cafes"}
+  ]
+  </memory_update>
+- Keys should be short english words. Values should be concise.
+- Only output memory_update when you learn something NEW and IMPORTANT.`
 
 function buildContextBlock(ctx: ChatBody["context"]): string {
   if (!ctx) return ""
@@ -59,16 +76,99 @@ function buildContextBlock(ctx: ChatBody["context"]): string {
     : ""
 }
 
+function buildMemoryBlock(memories: { key: string; value: string }[]): string {
+  if (!memories.length) return ""
+  const list = memories.map((m) => `${m.key}: ${m.value}`).join("\n")
+  return `\n\n--- USER MEMORIES (from previous conversations) ---\n${list}\n---------------------------------------------------`
+}
+
+async function getUserMemories(req: Request) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data } = await supabase
+      .from("memories")
+      .select("key, value")
+      .eq("user_id", user.id)
+
+    return data ?? []
+  } catch {
+    return []
+  }
+}
+
+async function saveMemories(updates: { key: string; value: string }[], req: Request) {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    for (const { key, value } of updates) {
+      await supabase.from("memories").upsert(
+        { user_id: user.id, key, value, updated_at: new Date().toISOString() },
+        { onConflict: "user_id,key" }
+      )
+    }
+  } catch (e) {
+    console.error("Memory save error:", e)
+  }
+}
+
 export async function POST(req: Request) {
   const body = (await req.json()) as ChatBody
   const { messages, context } = body
 
-  const system = SYSTEM_BASE + buildContextBlock(context)
+  const memories = await getUserMemories(req)
+  const system = SYSTEM_BASE + buildMemoryBlock(memories) + buildContextBlock(context)
 
   const result = streamText({
     model: openai("gpt-4o-mini"),
     system,
     messages: await convertToModelMessages(messages),
+    onFinish: async ({ text }) => {
+      // Memory update жадын сақтау
+      const match = text.match(/<memory_update>([\s\S]*?)<\/memory_update>/)
+      if (match) {
+        try {
+          const updates = JSON.parse(match[1].trim())
+          if (Array.isArray(updates)) {
+            await saveMemories(updates, req)
+          }
+        } catch (e) {
+          console.error("Memory parse error:", e)
+        }
+      }
+    },
   })
 
   return result.toUIMessageStreamResponse()
