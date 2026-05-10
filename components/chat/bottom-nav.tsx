@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import {
   MessageSquare, TrendingUp, TrendingDown,
-  Target, BarChart2, DollarSign, Settings
+  Target, BarChart2, DollarSign, Settings, Users
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -22,6 +22,7 @@ export function BottomNav() {
     { icon: Target, label: t(locale, "goals"), href: "/finances/goals" },
     { icon: BarChart2, label: t(locale, "analytics"), href: "/analytics" },
     { icon: DollarSign, label: t(locale, "currency"), href: "/currency" },
+    { icon: Users, label: locale === "kk" ? "Отбасы" : locale === "ru" ? "Семья" : "Family", href: "/family" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 
