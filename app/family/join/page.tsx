@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Users, Check, X } from "lucide-react"
 import { useApp } from "@/lib/store"
 
-export default function JoinFamilyPage() {
+function JoinContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -74,5 +74,19 @@ export default function JoinFamilyPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function JoinFamilyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="size-16 rounded-full bg-primary/15 flex items-center justify-center">
+          <Users className="size-8 text-primary animate-pulse" />
+        </div>
+      </div>
+    }>
+      <JoinContent />
+    </Suspense>
   )
 }
