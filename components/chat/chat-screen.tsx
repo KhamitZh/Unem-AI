@@ -336,7 +336,7 @@ export function ChatScreen() {
           </div>
         </div>
 
-        <div className="border-t border-border/60 bg-background/40 backdrop-blur">
+        <div className="border-t border-border/60 bg-background/40 backdrop-blur mb-16 md:mb-0">
           <div className="mx-auto w-full max-w-3xl px-3 py-3 md:px-8 md:py-4">
             <Composer
               value={input}
