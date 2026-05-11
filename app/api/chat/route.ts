@@ -116,6 +116,37 @@ async function getUserMemories(req: Request) {
   }
 }
 
+async function getUserFinances() {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data } = await supabase
+      .from("finances")
+      .select("*")
+      .eq("user_id", user.id)
+
+    return data ?? []
+  } catch {
+    return null
+  }
+}
+
 async function saveMemories(updates: { key: string; value: string }[], req: Request) {
   try {
     const cookieStore = await cookies()
@@ -152,6 +183,23 @@ export async function POST(req: Request) {
   const { messages, context } = body
 
   const memories = await getUserMemories(req)
+  const dbFinances = await getUserFinances()
+
+  // DB finances деректерін context-ке қосу
+  if (dbFinances && dbFinances.length > 0) {
+    const dbIncomes = dbFinances.filter((f) => f.type === "income")
+    const dbExpenses = dbFinances.filter((f) => f.type === "expense")
+    const dbGoals = dbFinances.filter((f) => f.type === "goal")
+
+    const totalIncome = dbIncomes.reduce((s, i) => s + i.amount, 0)
+    const totalExpenses = dbExpenses.reduce((s, e) => s + e.amount, 0)
+
+    if (context) {
+      context.estimatedIncome = totalIncome || context.estimatedIncome
+      context.expenses = dbExpenses.map((e) => ({ category: e.title, amount: e.amount }))
+      context.goals = dbGoals.map((g) => ({ title: g.title, price: g.amount }))
+    }
+  }
   const system = SYSTEM_BASE + buildMemoryBlock(memories) + buildContextBlock(context)
 
   const result = streamText({
