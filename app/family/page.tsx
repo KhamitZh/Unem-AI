@@ -10,6 +10,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recha
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
 import { FamilyChat } from "@/components/family/family-chat"
+import { Leaderboard } from "@/components/family/leaderboard"
 
 function fmt(n: number): string {
   if (!n || n <= 0) return "0 ₸"
@@ -488,6 +489,9 @@ export default function FamilyPage() {
                           style={{ width: `${progress}%` }}
                         />
                       </div>
+
+                      {/* Leaderboard */}
+                      <Leaderboard members={family.members ?? []} currentUserId={currentUserId} />
 
                       {/* Отбасылық чат */}
                       <FamilyChat currentUserId={currentUserId} />
