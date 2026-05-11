@@ -9,6 +9,7 @@ import {
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
+import { FamilyChat } from "@/components/family/family-chat"
 
 function fmt(n: number): string {
   if (!n || n <= 0) return "0 ₸"
@@ -481,6 +482,9 @@ export default function FamilyPage() {
                           style={{ width: `${progress}%` }}
                         />
                       </div>
+
+                      {/* Отбасылық чат */}
+                      <FamilyChat currentUserId={family.owner_id} />
 
                       {/* Pie chart — кім қанша салды */}
                       {pieData.length > 0 && (
