@@ -25,6 +25,7 @@ export default function FamilyPage() {
   const { profile } = useApp()
   const locale = profile.locale
   const [family, setFamily] = useState<any>(null)
+  const [currentUserId, setCurrentUserId] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [familyName, setFamilyName] = useState("")
   const [inviteEmail, setInviteEmail] = useState("")
@@ -114,9 +115,14 @@ export default function FamilyPage() {
   }, [])
 
   async function loadFamily() {
-    const res = await fetch("/api/family")
-    const data = await res.json()
-    setFamily(data.family)
+    const [familyRes, userRes] = await Promise.all([
+      fetch("/api/family"),
+      fetch("/api/auth/me"),
+    ])
+    const familyData = await familyRes.json()
+    const userData = await userRes.json()
+    setFamily(familyData.family)
+    setCurrentUserId(userData.userId ?? "")
     setLoading(false)
   }
 
@@ -484,7 +490,7 @@ export default function FamilyPage() {
                       </div>
 
                       {/* Отбасылық чат */}
-                      <FamilyChat currentUserId={family.owner_id} />
+                      <FamilyChat currentUserId={currentUserId} />
 
                       {/* Pie chart — кім қанша салды */}
                       {pieData.length > 0 && (
