@@ -40,6 +40,13 @@ export function ChatScreen() {
   const { theme, setTheme } = useTheme()
   const [input, setInput] = useState("")
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [dbFinances, setDbFinances] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/finances")
+      .then((r) => r.json())
+      .then((d) => setDbFinances(d.finances ?? []))
+  }, [])
   const [sessions, setSessions] = useState<any[]>([])
   const scrollerRef = useRef<HTMLDivElement>(null)
   const prevStreamingRef = useRef(false)
@@ -56,12 +63,17 @@ export function ChatScreen() {
               name: profile.name,
               ageGroup: profile.ageGroup,
               incomeBracket: profile.incomeBracket,
-              estimatedIncome: profile.estimatedIncome,
-              expenses: expenses.map((e) => ({
-                category: e.category,
-                amount: e.amount,
-              })),
-              goals: goals.map((g) => ({ title: g.title, price: g.price })),
+              estimatedIncome: dbFinances
+                .filter((f) => f.type === "income")
+                .reduce((s, i) => s + i.amount, 0) || profile.estimatedIncome,
+              expenses: dbFinances
+                .filter((f) => f.type === "expense")
+                .map((e) => ({ category: e.title, amount: e.amount }))
+                .concat(expenses.map((e) => ({ category: e.category, amount: e.amount }))),
+              goals: dbFinances
+                .filter((f) => f.type === "goal")
+                .map((g) => ({ title: g.title, price: g.amount }))
+                .concat(goals.map((g) => ({ title: g.title, price: g.price }))),
             },
           },
         }),
