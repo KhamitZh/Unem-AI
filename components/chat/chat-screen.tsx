@@ -78,7 +78,7 @@ export function ChatScreen() {
           },
         }),
       }),
-    [profile, expenses, goals],
+    [profile, expenses, goals, dbFinances],
   )
 
   const { messages, sendMessage, status, stop, setMessages } = useChat({
