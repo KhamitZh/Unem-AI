@@ -135,6 +135,7 @@ const kk: Dict = {
   converter: "Конвертер",
   ratesVsKZT: "Теңгеге қатысты бағам",
   family: "Отбасы",
+  transactions: "Транзакциялар",
 }
 
 const ru: Dict = {
@@ -261,6 +262,7 @@ const ru: Dict = {
   converter: "Конвертер",
   ratesVsKZT: "Курс к тенге",
   family: "Семья",
+  transactions: "Транзакции",
 }
 
 const en: Dict = {
@@ -387,6 +389,7 @@ const en: Dict = {
   converter: "Converter",
   ratesVsKZT: "Rates vs KZT",
   family: "Family",
+  transactions: "Transactions",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
