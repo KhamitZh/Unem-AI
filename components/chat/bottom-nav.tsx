@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import {
   MessageSquare, TrendingUp, TrendingDown,
-  Target, BarChart2, DollarSign, Settings, Users, Receipt
+  Target, BarChart2, DollarSign, Settings, Users, Receipt, BookOpen
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -24,6 +24,7 @@ export function BottomNav() {
     { icon: DollarSign, label: t(locale, "currency"), href: "/currency" },
     { icon: Users, label: locale === "kk" ? "Отбасы" : locale === "ru" ? "Семья" : "Family", href: "/family" },
     { icon: Receipt, label: t(locale, "transactions"), href: "/transactions" },
+    { icon: BookOpen, label: t(locale, "books"), href: "/books" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 

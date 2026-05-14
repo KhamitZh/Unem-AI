@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Plus, MessageSquare, Trash2, Pencil, Check, X,
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown,
-  Target, Settings, Pin, PinOff, BarChart2, DollarSign, Users, Receipt
+  Target, Settings, Pin, PinOff, BarChart2, DollarSign, Users, Receipt, BookOpen
 } from "lucide-react"
 import { AIWordmark } from "@/components/ai-orb"
 import { useApp } from "@/lib/store"
@@ -139,6 +139,7 @@ export function ChatSidebar({
   { icon: DollarSign, key: "currency" as const, href: "/currency", color: "text-yellow-400" },
   { icon: Users, key: "family" as const, href: "/family", color: "text-pink-400" },
   { icon: Receipt, key: "transactions" as const, href: "/transactions", color: "text-orange-400" },
+  { icon: BookOpen, key: "books" as const, href: "/books", color: "text-emerald-400" },
   ]
 
   return (

@@ -77,6 +77,7 @@ function buildContextBlock(ctx: ChatBody["context"]): string {
   return parts.length
     ? `\n\n--- USER CONTEXT ---\n${parts.join("\n")}\n--------------------`
     : ""
+  
 }
 
 function buildMemoryBlock(memories: { key: string; value: string }[]): string {
@@ -147,6 +148,39 @@ async function getUserFinances() {
   }
 }
 
+async function getUserTransactions() {
+  try {
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
+
+    const { data } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .limit(20)
+
+    return data ?? []
+  } catch {
+    return []
+  }
+}
+
 async function saveMemories(updates: { key: string; value: string }[], req: Request) {
   try {
     const cookieStore = await cookies()
@@ -184,6 +218,7 @@ export async function POST(req: Request) {
 
   const memories = await getUserMemories(req)
   const dbFinances = await getUserFinances()
+  const recentTransactions = await getUserTransactions()
 
   // DB finances деректерін context-ке қосу
   if (dbFinances && dbFinances.length > 0) {
@@ -200,7 +235,13 @@ export async function POST(req: Request) {
       context.goals = dbGoals.map((g) => ({ title: g.title, price: g.amount }))
     }
   }
-  const system = SYSTEM_BASE + buildMemoryBlock(memories) + buildContextBlock(context)
+  const transactionBlock = recentTransactions.length > 0
+  ? `\n\n--- RECENT TRANSACTIONS (last 20) ---\n${recentTransactions.map((t) =>
+    `${t.date} | ${t.type === "income" ? "+" : "-"}${t.amount} KZT | ${t.title} | ${t.category}`
+  ).join("\n")}\n------------------------------------`
+  : ""
+
+  const system = SYSTEM_BASE + buildMemoryBlock(memories) + buildContextBlock(context) + transactionBlock
 
   const result = streamText({
     model: openai("gpt-4o-mini"),
