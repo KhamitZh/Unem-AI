@@ -33,7 +33,8 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/auth") &&
     !request.nextUrl.pathname.startsWith("/api") &&
     !request.nextUrl.pathname.startsWith("/_next") &&
-    !request.nextUrl.pathname.startsWith("/family/join")
+    !request.nextUrl.pathname.startsWith("/family/join") &&
+    request.nextUrl.pathname !== "/landing"
   ) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth"
