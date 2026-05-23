@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Trash2, Target } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
+import { useSubscription } from "@/lib/use-subscription"
+import { UpgradeModal } from "@/components/subscription/upgrade-modal"
 
 const CURRENCIES = [
   { code: "KZT", symbol: "₸" },
@@ -36,6 +38,8 @@ export default function GoalsPage() {
   const router = useRouter()
   const { profile } = useApp()
   const locale = profile.locale
+  const { isPro } = useSubscription()
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const [goals, setGoals] = useState<any[]>([])
   const [incomes, setIncomes] = useState<any[]>([])
   const [expenses, setExpenses] = useState<any[]>([])
@@ -63,6 +67,10 @@ export default function GoalsPage() {
   const savings = Math.max(totalIncome - totalExpenses, 0)
 
   async function handleAdd() {
+    if (goals.length >= 1 && !isPro) {
+      setShowUpgrade(true)
+      return
+    }
     if (!title.trim() || !amount) return
     setSaving(true)
     const priceKZT = Math.round(Number(amount) * (toKZT[currency] ?? 1))
@@ -104,7 +112,6 @@ export default function GoalsPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-
         <div className="rounded-2xl border border-border bg-card p-5">
           <p className="text-sm text-muted-foreground">{t(locale, "monthlySavings")}</p>
           <p className="text-3xl font-bold font-mono mt-1 text-primary">{fmt(savings)}</p>
@@ -138,7 +145,6 @@ export default function GoalsPage() {
                     <Trash2 className="size-4" />
                   </button>
                 </div>
-
                 {months !== null && (
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
@@ -212,6 +218,9 @@ export default function GoalsPage() {
           </button>
         )}
       </div>
+      {showUpgrade && (
+        <UpgradeModal reason="goal" onClose={() => setShowUpgrade(false)} />
+      )}
     </div>
   )
 }

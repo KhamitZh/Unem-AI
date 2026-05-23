@@ -33,12 +33,18 @@ import { Suggestions } from "./suggestions"
 import { NotificationBanner } from "./notification-banner"
 import { GoalChecker } from "./goal-checker"
 import { BottomNav } from "./bottom-nav"
+import { useSubscription } from "@/lib/use-subscription"
+import { UpgradeModal } from "@/components/subscription/upgrade-modal"
+import { SubscriptionBadge } from "@/components/subscription/subscription-badge"
 
 export function ChatScreen() {
   const { profile, expenses, goals } = useApp()
   const locale = profile.locale
   const { theme, setTheme } = useTheme()
   const [input, setInput] = useState("")
+  const { canChat, incrementChat, chatMessagesLeft, isPro } = useSubscription()
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  const [upgradeReason, setUpgradeReason] = useState<"chat" | "finance" | "goal" | "family" | "csv" | "analytics">("chat")  
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [dbFinances, setDbFinances] = useState<any[]>([])
 
@@ -155,6 +161,15 @@ export function ChatScreen() {
   async function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed) return
+
+    // Лимит тексеру
+    if (!canChat()) {
+      setUpgradeReason("chat")
+      setShowUpgrade(true)
+      return
+    }
+
+    await incrementChat()
 
     let currentSessionId = sessionId
 
@@ -278,6 +293,7 @@ export function ChatScreen() {
           </div>
 
           <div className="hidden items-center gap-2.5 md:flex">
+            <SubscriptionBadge onClick={() => setShowUpgrade(true)} />
             <span className="size-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm text-muted-foreground">
               {t(locale, "online")} · gpt-4o-mini
@@ -363,6 +379,12 @@ export function ChatScreen() {
           </div>
         </div>
       </div>
+      {showUpgrade && (
+        <UpgradeModal
+          reason={upgradeReason}
+          onClose={() => setShowUpgrade(false)}
+        />
+      )}
     </main>
   )
 }

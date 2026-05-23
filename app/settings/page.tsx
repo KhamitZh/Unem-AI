@@ -6,8 +6,13 @@ import { ArrowLeft, User, Lock, LogOut, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
+import { useSubscription } from "@/lib/use-subscription"
+import { UpgradeModal } from "@/components/subscription/upgrade-modal"
+import { Crown, Zap, Gift } from "lucide-react"
 
 export default function SettingsPage() {
+  const { data: subData, loading: subLoading } = useSubscription()
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const { profile } = useApp()
@@ -89,6 +94,60 @@ export default function SettingsPage() {
             {message.text}
           </div>
         )}
+
+        {/* Subscription */}
+        {!subLoading && subData && (
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {locale === "kk" ? "Жоспар" : locale === "ru" ? "Тариф" : "Plan"}
+              </p>
+            </div>
+            <div className="px-4 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`size-10 rounded-full flex items-center justify-center ${
+                  subData.plan === "family" ? "bg-pink-500/15" :
+                  subData.plan === "pro" ? "bg-primary/15" : "bg-muted/50"
+                }`}>
+                  {subData.plan === "family" ? <Crown className="size-5 text-pink-400" /> :
+                  subData.plan === "pro" ? <Zap className="size-5 text-primary" /> :
+                  <Gift className="size-5 text-muted-foreground" />}
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {subData.plan === "family" ? (locale === "kk" ? "Отбасы" : locale === "ru" ? "Семья" : "Family") :
+                    subData.plan === "pro" ? "Pro" :
+                    (locale === "kk" ? "Тегін" : locale === "ru" ? "Бесплатный" : "Free")}
+                  </p>
+                  {subData.isTrial && (
+                    <p className="text-xs text-primary">
+                      {locale === "kk" ? `Trial · ${subData.trialDaysLeft} күн қалды` :
+                      locale === "ru" ? `Trial · Осталось ${subData.trialDaysLeft} дней` :
+                      `Trial · ${subData.trialDaysLeft} days left`}
+                    </p>
+                  )}
+                  {subData.plan === "free" && (
+                    <p className="text-xs text-muted-foreground">
+                      {locale === "kk" ? `${subData.usage.chat_messages_count}/20 хабарлама` :
+                      locale === "ru" ? `${subData.usage.chat_messages_count}/20 сообщений` :
+                      `${subData.usage.chat_messages_count}/20 messages`}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {subData.plan === "free" && (
+                <button
+                  onClick={() => setShowUpgrade(true)}
+                  className="rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition"
+                >
+                  {locale === "kk" ? "Pro алу" : locale === "ru" ? "Получить Pro" : "Get Pro"}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border">

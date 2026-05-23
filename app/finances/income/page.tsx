@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Trash2, TrendingUp } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
+import { useSubscription } from "@/lib/use-subscription"
+import { UpgradeModal } from "@/components/subscription/upgrade-modal"
 
 const CURRENCIES = [
   { code: "KZT", symbol: "₸" },
@@ -33,6 +35,8 @@ function fmt(n: number): string {
 }
 
 export default function IncomePage() {
+  const { isPro } = useSubscription()
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const router = useRouter()
   const { profile } = useApp()
   const locale = profile.locale
@@ -54,21 +58,25 @@ export default function IncomePage() {
   }, [])
 
   async function handleAdd() {
-    if (!title.trim() || !amount) return
-    setSaving(true)
-    const amountKZT = Math.round(Number(amount) * (toKZT[currency] ?? 1))
-    const res = await fetch("/api/finances", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "income", title: title.trim(), amount: amountKZT, currency, period_days: 30 }),
-    })
-    const data = await res.json()
-    setIncomes((prev) => [data.finance, ...prev])
-    setTitle("")
-    setAmount("")
-    setCurrency("KZT")
-    setShowAdd(false)
-    setSaving(false)
+  if (incomes.length >= 3 && !isPro) {
+    setShowUpgrade(true)
+    return
+  }
+  if (!title.trim() || !amount) return
+  setSaving(true)
+  const amountKZT = Math.round(Number(amount) * (toKZT[currency] ?? 1))
+  const res = await fetch("/api/finances", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "income", title: title.trim(), amount: amountKZT, currency, period_days: 30 }),
+  })
+  const data = await res.json()
+  setIncomes((prev) => [data.finance, ...prev])
+  setTitle("")
+  setAmount("")
+  setCurrency("KZT")
+  setShowAdd(false)
+  setSaving(false)
   }
 
   async function handleDelete(id: string) {
@@ -179,6 +187,9 @@ export default function IncomePage() {
           </button>
         )}
       </div>
+      {showUpgrade && (
+        <UpgradeModal reason="finance" onClose={() => setShowUpgrade(false)} />
+      )}
     </div>
   )
 }

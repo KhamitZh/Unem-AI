@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Trash2, TrendingDown } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
+import { useSubscription } from "@/lib/use-subscription"
+import { UpgradeModal } from "@/components/subscription/upgrade-modal"
 
 const CURRENCIES = [
   { code: "KZT", symbol: "₸" },
@@ -36,6 +38,8 @@ export default function ExpensesPage() {
   const router = useRouter()
   const { profile } = useApp()
   const locale = profile.locale
+  const { isPro } = useSubscription()
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const [expenses, setExpenses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
@@ -62,6 +66,10 @@ export default function ExpensesPage() {
   }, [])
 
   async function handleAdd() {
+    if (expenses.length >= 3 && !isPro) {
+      setShowUpgrade(true)
+      return
+    }
     if (!title.trim() || !amount) return
     setSaving(true)
     const amountKZT = Math.round(Number(amount) * (toKZT[currency] ?? 1) * 30 / periodDays)
@@ -162,7 +170,6 @@ export default function ExpensesPage() {
                 ))}
               </select>
             </div>
-
             <div className="grid grid-cols-4 gap-2">
               {PERIODS.map((p) => (
                 <button
@@ -178,7 +185,6 @@ export default function ExpensesPage() {
                 </button>
               ))}
             </div>
-
             <div className="flex gap-2">
               <button
                 onClick={handleAdd}
@@ -205,6 +211,9 @@ export default function ExpensesPage() {
           </button>
         )}
       </div>
+      {showUpgrade && (
+        <UpgradeModal reason="finance" onClose={() => setShowUpgrade(false)} />
+      )}
     </div>
   )
 }
