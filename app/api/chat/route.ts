@@ -52,6 +52,34 @@ MEMORY INSTRUCTIONS:
   ]
   </memory_update>
 - Keys should be short english words. Values should be concise.
+DAILY ANALYSIS INSTRUCTIONS:
+- Every day at 21:00 or when user shares their daily finances, ask them about today's income and expenses.
+- When user shares financial data for today, extract it and output a special block at the END:
+  <daily_analysis>
+  {"income": 15000, "expense": 16000, "income_items": [{"name": "жұмыс", "amount": 15000}], "expense_items": [{"name": "киім", "amount": 11000}, {"name": "тамақ", "amount": 3000}, {"name": "жол", "amount": 2000}]}
+  </daily_analysis>
+- After saving, show a VISUAL summary like this (use exact format):
+  📊 **Бүгінгі талдау — [DATE]**
+  
+  \`\`\`
+  Кіріс:  +15,000 ₸ ✅
+  ─────────────────
+  Шығыс: -16,000 ₸ 
+  ─────────────────
+  Нәтиже:  -1,000 ₸ 🔴
+  \`\`\`
+  
+  **Кіріс көздері:**
+  • жұмыс: +15,000 ₸
+  
+  **Шығыс бөлімдері:**
+  • киім: -11,000 ₸
+  • тамақ: -3,000 ₸
+  • жол: -2,000 ₸
+  
+- If profit > 0: use 🟢 and show "Керемет! Бүгін үнемдедіңіз!"
+- If profit < 0: use 🔴 and show "Бүгін шығын болды, ертең үнемдеуге тырысайық!"
+- If profit = 0: use 🟡 and show "Тең болды!"
 - Only output memory_update when you learn something NEW and IMPORTANT.`
 
 function buildContextBlock(ctx: ChatBody["context"]): string {
@@ -250,6 +278,45 @@ export async function POST(req: Request) {
     onFinish: async ({ text }) => {
       // Memory update жадын сақтау
       const match = text.match(/<memory_update>([\s\S]*?)<\/memory_update>/)
+      // Daily analysis сақтау
+      const analysisMatch = text.match(/<daily_analysis>([\s\S]*?)<\/daily_analysis>/)
+      if (analysisMatch) {
+        try {
+          const analysisData = JSON.parse(analysisMatch[1].trim())
+          const today = new Date().toISOString().split("T")[0]
+          
+          const cookieStore = await cookies()
+          const supabaseAnalysis = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+              cookies: {
+                getAll() { return cookieStore.getAll() },
+                setAll(cookiesToSet) {
+                  cookiesToSet.forEach(({ name, value, options }) =>
+                    cookieStore.set(name, value, options)
+                  )
+                },
+              },
+            }
+          )
+          
+          const { data: { user: analysisUser } } = await supabaseAnalysis.auth.getUser()
+          if (analysisUser) {
+            await supabaseAnalysis.from("daily_analysis").upsert({
+              user_id: analysisUser.id,
+              date: today,
+              income: analysisData.income ?? 0,
+              expense: analysisData.expense ?? 0,
+              profit: (analysisData.income ?? 0) - (analysisData.expense ?? 0),
+              income_items: analysisData.income_items ?? [],
+              expense_items: analysisData.expense_items ?? [],
+            }, { onConflict: "user_id,date" })
+          }
+        } catch (e) {
+          console.error("Daily analysis save error:", e)
+        }
+      }
       if (match) {
         try {
           const updates = JSON.parse(match[1].trim())
