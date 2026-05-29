@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import {
   MessageSquare, TrendingUp, TrendingDown,
-  Target, BarChart2, DollarSign, Settings, Users, Receipt, BookOpen, Percent, LineChart
+  Target, BarChart2, DollarSign, Settings, Users, Receipt, BookOpen, Percent, LineChart, Building2, Sunset
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -27,6 +27,8 @@ export function BottomNav() {
     { icon: BookOpen, label: t(locale, "books"), href: "/books" },
     { icon: Percent, label: t(locale, "inflation"), href: "/inflation" },
     { icon: LineChart, label: t(locale, "investment"), href: "/investment" },
+    { icon: Building2, label: t(locale, "deposits"), href: "/deposits" },
+    { icon: Sunset, label: t(locale, "retirement"), href: "/retirement" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 
