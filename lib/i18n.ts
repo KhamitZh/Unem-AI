@@ -141,6 +141,7 @@ const kk: Dict = {
   investment: "Инвестиция",
   deposits: "Депозиттер",
   retirement: "Зейнет",
+  financialPlan: "AI Жоспар",
 }
 
 const ru: Dict = {
@@ -273,6 +274,7 @@ const ru: Dict = {
   investment: "Инвестиции",
   deposits: "Депозиты",
   retirement: "Пенсия",
+  financialPlan: "AI План",
 }
 
 const en: Dict = {
@@ -405,6 +407,7 @@ const en: Dict = {
   investment: "Investment",
   deposits: "Deposits",
   retirement: "Retirement",
+  financialPlan: "AI Plan",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
