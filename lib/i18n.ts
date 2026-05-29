@@ -137,6 +137,7 @@ const kk: Dict = {
   family: "Отбасы",
   transactions: "Транзакциялар",
   books: "Кітаптар",
+  inflation: "Инфляция",
 }
 
 const ru: Dict = {
@@ -265,6 +266,7 @@ const ru: Dict = {
   family: "Семья",
   transactions: "Транзакции",
   books: "Книги",
+  inflation: "Инфляция",
 }
 
 const en: Dict = {
@@ -393,6 +395,7 @@ const en: Dict = {
   family: "Family",
   transactions: "Transactions",
   books: "Books",
+  inflation: "Inflation",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
