@@ -30,6 +30,7 @@ export function BottomNav() {
     { icon: Building2, label: t(locale, "deposits"), href: "/deposits" },
     { icon: Sunset, label: t(locale, "retirement"), href: "/retirement" },
     { icon: Sparkles, label: t(locale, "financialPlan"), href: "/financial-plan" },
+    { icon: Target, label: t(locale, "goalTracker"), href: "/goal-tracker" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 
