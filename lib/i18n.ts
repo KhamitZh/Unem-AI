@@ -144,6 +144,7 @@ const kk: Dict = {
   financialPlan: "AI Жоспар",
   goalTracker: "Мақсат тренер",
    referral: "Дос шақыру",
+   leaderboard: "Лидерлер",
 }
 
 const ru: Dict = {
@@ -279,6 +280,7 @@ const ru: Dict = {
   financialPlan: "AI План",
   goalTracker: "Тренер целей",
   referral: "Пригласить друга",
+  leaderboard: "Лидеры",
 }
 
 const en: Dict = {
@@ -414,6 +416,7 @@ const en: Dict = {
   financialPlan: "AI Plan",
   goalTracker: "Goal Tracker",
   referral: "Invite friend",
+  leaderboard: "Leaderboard",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }

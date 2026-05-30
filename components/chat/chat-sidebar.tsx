@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   Plus, MessageSquare, Trash2, Pencil, Check, X,
   ChevronLeft, ChevronRight, TrendingUp, TrendingDown,
-  Target, Settings, Pin, PinOff, BarChart2, DollarSign, Users, Receipt, BookOpen, Shield, Percent, LineChart, Building2, Sunset, Sparkles, Gift 
+  Target, Settings, Pin, PinOff, BarChart2, DollarSign, Users, Receipt, BookOpen, Shield, Percent, LineChart, Building2, Sunset, Sparkles, Gift, Trophy
 } from "lucide-react"
 import { AIWordmark } from "@/components/ai-orb"
 import { useApp } from "@/lib/store"
@@ -147,6 +147,7 @@ export function ChatSidebar({
   { icon: Sparkles, key: "financialPlan" as const, href: "/financial-plan", color: "text-violet-400" },
   { icon: Target, key: "goalTracker" as const, href: "/goal-tracker", color: "text-accent" },
   { icon: Gift, key: "referral" as const, href: "/referral", color: "text-pink-400" },
+  { icon: Trophy, key: "leaderboard" as const, href: "/leaderboard", color: "text-yellow-400" },
   ]
 
   return (
