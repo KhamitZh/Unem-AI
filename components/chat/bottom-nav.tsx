@@ -33,6 +33,7 @@ export function BottomNav() {
     { icon: Target, label: t(locale, "goalTracker"), href: "/goal-tracker" },
     { icon: Gift, label: t(locale, "referral"), href: "/referral" },
     { icon: Trophy, label: t(locale, "leaderboard"), href: "/leaderboard" },
+    { icon: Users, label: t(locale, "community"), href: "/community" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 

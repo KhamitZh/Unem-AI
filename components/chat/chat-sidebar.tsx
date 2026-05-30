@@ -148,6 +148,7 @@ export function ChatSidebar({
   { icon: Target, key: "goalTracker" as const, href: "/goal-tracker", color: "text-accent" },
   { icon: Gift, key: "referral" as const, href: "/referral", color: "text-pink-400" },
   { icon: Trophy, key: "leaderboard" as const, href: "/leaderboard", color: "text-yellow-400" },
+  { icon: Users, key: "community" as const, href: "/community", color: "text-cyan-400" },
   ]
 
   return (

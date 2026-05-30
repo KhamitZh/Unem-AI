@@ -143,8 +143,9 @@ const kk: Dict = {
   retirement: "Зейнет",
   financialPlan: "AI Жоспар",
   goalTracker: "Мақсат тренер",
-   referral: "Дос шақыру",
-   leaderboard: "Лидерлер",
+  referral: "Дос шақыру",
+  leaderboard: "Лидерлер",
+  community: "Қоғамдастық",
 }
 
 const ru: Dict = {
@@ -281,6 +282,7 @@ const ru: Dict = {
   goalTracker: "Тренер целей",
   referral: "Пригласить друга",
   leaderboard: "Лидеры",
+  community: "Сообщество",
 }
 
 const en: Dict = {
@@ -417,6 +419,7 @@ const en: Dict = {
   goalTracker: "Goal Tracker",
   referral: "Invite friend",
   leaderboard: "Leaderboard",
+  community: "Community",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
