@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import {
   MessageSquare, TrendingUp, TrendingDown,
-  Target, BarChart2, DollarSign, Settings, Users, Receipt, BookOpen, Percent, LineChart, Building2, Sunset, Sparkles
+  Target, BarChart2, DollarSign, Settings, Users, Receipt, BookOpen, Percent, LineChart, Building2, Sunset, Sparkles, Gift
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -31,6 +31,7 @@ export function BottomNav() {
     { icon: Sunset, label: t(locale, "retirement"), href: "/retirement" },
     { icon: Sparkles, label: t(locale, "financialPlan"), href: "/financial-plan" },
     { icon: Target, label: t(locale, "goalTracker"), href: "/goal-tracker" },
+    { icon: Gift, label: t(locale, "referral"), href: "/referral" },
     { icon: Settings, label: t(locale, "settings"), href: "/settings" },
   ]
 

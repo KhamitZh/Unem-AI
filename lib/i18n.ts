@@ -143,6 +143,7 @@ const kk: Dict = {
   retirement: "Зейнет",
   financialPlan: "AI Жоспар",
   goalTracker: "Мақсат тренер",
+   referral: "Дос шақыру",
 }
 
 const ru: Dict = {
@@ -277,6 +278,7 @@ const ru: Dict = {
   retirement: "Пенсия",
   financialPlan: "AI План",
   goalTracker: "Тренер целей",
+  referral: "Пригласить друга",
 }
 
 const en: Dict = {
@@ -411,6 +413,7 @@ const en: Dict = {
   retirement: "Retirement",
   financialPlan: "AI Plan",
   goalTracker: "Goal Tracker",
+  referral: "Invite friend",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
