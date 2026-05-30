@@ -1,323 +1,221 @@
-  "use client"
+"use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import {
   Plus, MessageSquare, Trash2, Pencil, Check, X,
-  ChevronLeft, ChevronRight, TrendingUp, TrendingDown,
-  Target, Settings, Pin, PinOff, BarChart2, DollarSign, Users, Receipt, BookOpen, Shield, Percent, LineChart, Building2, Sunset, Sparkles, Gift, Trophy
+  ChevronLeft, ChevronRight, Settings, Pin, PinOff, Shield
 } from "lucide-react"
-import { AIWordmark } from "@/components/ai-orb"
 import { useApp } from "@/lib/store"
-import { cn } from "@/lib/utils"
 import { t } from "@/lib/i18n"
-
-
-interface Session {
-  id: string
-  title: string
-  updated_at: string
-  pinned?: boolean
-}
+import { cn } from "@/lib/utils"
 
 interface Props {
-  onNewChat: () => void
-  sessions: Session[]
-  currentSessionId: string | null
-  onSelectSession: (id: string) => void
-  onDeleteSession: (id: string) => void
-  onRenameSession: (id: string, title: string) => void
-  onPinSession: (id: string, pinned: boolean) => void
+  showMobile?: boolean
+  onMobileClose?: () => void
 }
 
-export function ChatSidebar({
-  onNewChat,
-  sessions,
-  currentSessionId,
-  onSelectSession,
-  onDeleteSession,
-  onRenameSession,
-  onPinSession,
-}: Props) {
+export function ChatSidebar({ showMobile, onMobileClose }: Props) {
   const router = useRouter()
   const { profile } = useApp()
   const locale = profile.locale
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editingTitle, setEditingTitle] = useState("")
+  const [sessions, setSessions] = useState<any[]>([])
   const [collapsed, setCollapsed] = useState(false)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [isAdmin, setIsAdmin] = useState(false)
 
-  const pinnedSessions = sessions.filter((s) => s.pinned)
-  const unpinnedSessions = sessions.filter((s) => !s.pinned)
+  useEffect(() => {
+    loadSessions()
+    fetch("/api/admin?action=stats")
+      .then((r) => r.ok ? setIsAdmin(true) : null)
+      .catch(() => {})
+  }, [])
 
-  function startEdit(session: Session) {
-    setEditingId(session.id)
-    setEditingTitle(session.title)
+  async function loadSessions() {
+    const res = await fetch("/api/sessions")
+    const data = await res.json()
+    setSessions(data.sessions ?? [])
   }
 
-  function cancelEdit() {
-    setEditingId(null)
-    setEditingTitle("")
+  async function newChat() {
+    router.push("/")
+    onMobileClose?.()
   }
 
-  async function saveEdit(id: string) {
-    if (!editingTitle.trim()) return
-    await onRenameSession(id, editingTitle.trim())
-    setEditingId(null)
+  async function deleteSession(id: string) {
+    await fetch(`/api/sessions?id=${id}`, { method: "DELETE" })
+    setSessions((prev) => prev.filter((s) => s.id !== id))
   }
 
-  function SessionItem({ session }: { session: Session }) {
-    return (
-      <div
-        className={cn(
-          "group relative flex items-center rounded-xl transition-colors hover:bg-muted/40",
-          currentSessionId === session.id && "bg-primary/10"
-        )}
-      >
-        {editingId === session.id ? (
-          <div className="flex flex-1 items-center gap-1 px-2 py-1">
-            <input
-              autoFocus
-              value={editingTitle}
-              onChange={(e) => setEditingTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") saveEdit(session.id)
-                if (e.key === "Escape") cancelEdit()
-              }}
-              className="flex-1 rounded-lg bg-background px-2 py-1 text-sm outline-none border border-border"
-            />
-            <button onClick={() => saveEdit(session.id)} className="p-1 text-green-500">
-              <Check className="size-3.5" />
-            </button>
-            <button onClick={cancelEdit} className="p-1 text-muted-foreground">
-              <X className="size-3.5" />
-            </button>
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => onSelectSession(session.id)}
-              className="flex flex-1 items-center gap-2 px-3 py-2 text-sm text-left min-w-0"
-            >
-              {session.pinned
-                ? <Pin className="size-3 text-primary shrink-0" />
-                : <MessageSquare className={cn("size-3.5 shrink-0 opacity-60", currentSessionId === session.id && "text-primary opacity-100")} />
-              }
-              <span className="truncate">{session.title}</span>
-            </button>
-            <div className="hidden group-hover:flex items-center gap-0.5 pr-1">
-              <button
-                onClick={() => onPinSession(session.id, !session.pinned)}
-                className="p-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
-                title={session.pinned ? t(locale, "pinned") : t(locale, "pinned")}
-              >
-                {session.pinned ? <PinOff className="size-3" /> : <Pin className="size-3" />}
-              </button>
-              <button
-                onClick={() => startEdit(session)}
-                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              >
-                <Pencil className="size-3" />
-              </button>
-              <button
-                onClick={() => onDeleteSession(session.id)}
-                className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="size-3" />
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    )
+  async function pinSession(id: string, pinned: boolean) {
+    await fetch("/api/sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, pinned: !pinned }),
+    })
+    loadSessions()
   }
 
-  const financeLinks = [
-  { icon: TrendingUp, key: "income" as const, href: "/finances/income", color: "text-primary" },
-  { icon: TrendingDown, key: "expenses" as const, href: "/finances/expenses", color: "text-foreground/70" },
-  { icon: Target, key: "goals" as const, href: "/finances/goals", color: "text-accent" },
-  { icon: BarChart2, key: "analytics" as const, href: "/analytics", color: "text-blue-400" },
-  { icon: DollarSign, key: "currency" as const, href: "/currency", color: "text-yellow-400" },
-  { icon: Users, key: "family" as const, href: "/family", color: "text-pink-400" },
-  { icon: Receipt, key: "transactions" as const, href: "/transactions", color: "text-orange-400" },
-  { icon: BookOpen, key: "books" as const, href: "/books", color: "text-emerald-400" },
-  { icon: Percent, key: "inflation" as const, href: "/inflation", color: "text-red-400" },
-  { icon: LineChart, key: "investment" as const, href: "/investment", color: "text-purple-400" },
-  { icon: Building2, key: "deposits" as const, href: "/deposits", color: "text-green-400" },
-  { icon: Sunset, key: "retirement" as const, href: "/retirement", color: "text-orange-400" },
-  { icon: Sparkles, key: "financialPlan" as const, href: "/financial-plan", color: "text-violet-400" },
-  { icon: Target, key: "goalTracker" as const, href: "/goal-tracker", color: "text-accent" },
-  { icon: Gift, key: "referral" as const, href: "/referral", color: "text-pink-400" },
-  { icon: Trophy, key: "leaderboard" as const, href: "/leaderboard", color: "text-yellow-400" },
-  { icon: Users, key: "community" as const, href: "/community", color: "text-cyan-400" },
-  ]
+  async function renameSession(id: string) {
+    if (!editTitle.trim()) return
+    await fetch("/api/sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, title: editTitle.trim() }),
+    })
+    setSessions((prev) => prev.map((s) => s.id === id ? { ...s, title: editTitle.trim() } : s))
+    setEditId(null)
+  }
+
+  const pinned = sessions.filter((s) => s.pinned)
+  const unpinned = sessions.filter((s) => !s.pinned)
 
   return (
-    <aside
-      className={cn(
-        "hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar/50 backdrop-blur transition-all duration-300 relative",
-        collapsed ? "w-[60px]" : "w-[280px]"
+    <>
+      {/* Mobile overlay */}
+      {showMobile && (
+        <div
+          className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={onMobileClose}
+        />
       )}
-    >
-      {/* Collapse батырмасы */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-6 z-10 flex size-6 items-center justify-center rounded-full border border-border bg-background shadow-md hover:bg-muted transition-colors"
-      >
-        {collapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
-      </button>
 
-      <div className="flex flex-col h-full overflow-hidden">
+      <aside className={cn(
+        "flex flex-col border-r border-border bg-background transition-all duration-300 z-30 h-full",
+        collapsed ? "w-14" : "w-64",
+        "fixed md:relative inset-y-0 left-0",
+        showMobile ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
 
-        {/* 1. Жоғарғы бөлік — Logo + Avatar */}
-        <div className={cn("flex items-center gap-2 p-4 border-b border-sidebar-border", collapsed && "justify-center")}>
-          {collapsed ? (
-            <button
-              onClick={() => router.push("/profile")}
-              className="size-9 rounded-full bg-primary/15 flex items-center justify-center text-primary font-bold hover:bg-primary/25 transition-colors"
-            >
-              {(profile.name?.[0] ?? "?").toUpperCase()}
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => router.push("/profile")}
-                className="size-9 rounded-full bg-primary/15 flex items-center justify-center text-primary font-bold hover:bg-primary/25 transition-colors shrink-0"
-              >
-                {(profile.name?.[0] ?? "?").toUpperCase()}
-              </button>
-              <AIWordmark />
-            </>
-          )}
-        </div>
-
-        {/* 2. Жаңа чат батырмасы */}
-        <div className={cn("p-3 border-b border-sidebar-border", collapsed && "flex justify-center")}>
-          {collapsed ? (
-            <button
-              onClick={onNewChat}
-              className="size-9 rounded-xl bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-            >
-              <Plus className="size-4 text-primary" />
-            </button>
-          ) : (
-            <button
-              onClick={onNewChat}
-              className="w-full flex items-center gap-2 h-9 px-3 rounded-xl bg-primary/10 text-foreground hover:bg-primary/20 transition-colors text-sm font-medium"
-            >
-              <Plus className="size-4 text-primary" />
-              {t(locale, "newChat")}
-            </button>
-          )}
-        </div>
-
-        {/* 3. Чат тарихы */}
-        {!collapsed && (
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
-            {pinnedSessions.length > 0 && (
-              <div className="space-y-0.5">
-                <p className="px-2 text-[10px] uppercase tracking-widest text-muted-foreground py-1">
-                  {t(locale, "pinned")}
-                </p>
-                {pinnedSessions.map((s) => <SessionItem key={s.id} session={s} />)}
-              </div>
-            )}
-
-            {unpinnedSessions.length > 0 && (
-              <div className="space-y-0.5">
-                {pinnedSessions.length > 0 && (
-                  <p className="px-2 text-[10px] uppercase tracking-widest text-muted-foreground py-1">
-                    {t(locale, "allChats")}
-                  </p>
-                )}
-                {unpinnedSessions.map((s) => <SessionItem key={s.id} session={s} />)}
-              </div>
-            )}
-
-            {sessions.length === 0 && (
-              <p className="text-center text-xs text-muted-foreground py-4">
-                {t(locale, "noChats")}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Collapsed чат иконкалары */}
-        {collapsed && (
-          <div className="flex-1 overflow-y-auto flex flex-col gap-1 items-center py-2 min-h-0">
-            {sessions.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => onSelectSession(s.id)}
-                title={s.title}
-                className={cn(
-                  "size-9 rounded-xl flex items-center justify-center transition-colors hover:bg-muted/40",
-                  currentSessionId === s.id && "bg-primary/10 text-primary",
-                  s.pinned && "text-primary"
-                )}
-              >
-                {s.pinned ? <Pin className="size-3.5" /> : <MessageSquare className="size-3.5" />}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* 4. Қаржы батырмалары */}
-        <div className={cn("border-t border-sidebar-border p-2 space-y-1", collapsed && "flex flex-col items-center")}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 py-3 border-b border-border shrink-0">
           {!collapsed && (
-            <p className="px-2 text-[10px] uppercase tracking-widest text-muted-foreground py-1">
-              {t(locale, "finance")}
+            <span className="font-bold text-sm bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+              Unem AI
+            </span>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="rounded-full p-1.5 hover:bg-muted/40 transition-colors ml-auto"
+          >
+            {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+          </button>
+        </div>
+
+        {/* New chat */}
+        <div className="px-2 py-2 shrink-0">
+          <button
+            onClick={newChat}
+            className={cn(
+              "flex items-center gap-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-full px-3 py-2.5",
+              collapsed && "justify-center"
+            )}
+          >
+            <Plus className="size-4 shrink-0" />
+            {!collapsed && <span className="text-sm font-medium">{t(locale, "newChat")}</span>}
+          </button>
+        </div>
+
+        {/* Sessions */}
+        <div className="flex-1 overflow-y-auto px-2 space-y-1 py-1">
+          {pinned.length > 0 && !collapsed && (
+            <p className="text-[10px] text-muted-foreground px-2 py-1 uppercase tracking-widest">
+              📌 {t(locale, "pinned")}
             </p>
           )}
-          {financeLinks.map(({ icon: Icon, key, href, color }) =>
-            collapsed ? (
-              <button
-                key={href}
-                onClick={() => router.push(href)}
-                title={t(locale, key)}
-                className="size-9 rounded-xl flex items-center justify-center hover:bg-muted/40 transition-colors"
-              >
-                <Icon className={cn("size-4", color)} />
-              </button>
-            ) : (
-              <button
-                key={href}
-                onClick={() => router.push(href)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm hover:bg-muted/40 transition-colors"
-              >
-                <Icon className={cn("size-4", color)} />
-                <span>{t(locale, key)}</span>
-              </button>
-            )
-          )}
+
+          {[...pinned, ...unpinned].map((session) => (
+            <div key={session.id} className="group relative">
+              {editId === session.id ? (
+                <div className="flex items-center gap-1 px-2">
+                  <input
+                    autoFocus
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && renameSession(session.id)}
+                    className="flex-1 rounded-lg border border-border bg-background px-2 py-1 text-xs outline-none focus:border-primary"
+                  />
+                  <button onClick={() => renameSession(session.id)} className="p-1 text-green-500">
+                    <Check className="size-3.5" />
+                  </button>
+                  <button onClick={() => setEditId(null)} className="p-1 text-muted-foreground">
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { router.push(`/?session=${session.id}`); onMobileClose?.() }}
+                  className={cn(
+                    "flex items-center gap-2 rounded-xl px-3 py-2 w-full text-left hover:bg-muted/40 transition-colors",
+                    collapsed && "justify-center"
+                  )}
+                >
+                  <MessageSquare className="size-3.5 shrink-0 text-muted-foreground" />
+                  {!collapsed && (
+                    <span className="text-xs truncate flex-1 text-foreground/80">
+                      {session.title || t(locale, "newChat")}
+                    </span>
+                  )}
+                  {session.pinned && !collapsed && (
+                    <Pin className="size-2.5 text-primary shrink-0" />
+                  )}
+                </button>
+              )}
+
+              {/* Actions */}
+              {!collapsed && editId !== session.id && (
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background border border-border rounded-lg px-1">
+                  <button
+                    onClick={() => pinSession(session.id, session.pinned)}
+                    className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {session.pinned ? <PinOff className="size-3" /> : <Pin className="size-3" />}
+                  </button>
+                  <button
+                    onClick={() => { setEditId(session.id); setEditTitle(session.title || "") }}
+                    className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Pencil className="size-3" />
+                  </button>
+                  <button
+                    onClick={() => deleteSession(session.id)}
+                    className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* 5. Астыңғы бөлік — Settings */}
-        <div className={cn("border-t border-sidebar-border p-2", collapsed && "flex justify-center")}>
-          {collapsed ? (
+        {/* Footer */}
+        <div className="px-2 py-2 border-t border-border space-y-1 shrink-0">
+          {isAdmin && (
             <button
-              onClick={() => router.push("/settings")}
-              className="size-9 rounded-xl flex items-center justify-center hover:bg-muted/40 transition-colors"
+              onClick={() => { router.push("/admin"); onMobileClose?.() }}
+              className={cn(
+                "flex items-center gap-2 rounded-xl px-3 py-2 w-full text-yellow-400 hover:bg-yellow-400/10 transition-colors",
+                collapsed && "justify-center"
+              )}
             >
-              <Settings className="size-4 text-muted-foreground" />
-            </button>
-          ) : (
-            <button
-              onClick={() => router.push("/settings")}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/40 transition-colors"
-            >
-              <div className="size-8 rounded-full bg-primary/15 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                {(profile.name?.[0] ?? "?").toUpperCase()}
-              </div>
-              <div className="min-w-0 text-left">
-                <p className="text-sm font-medium truncate">{profile.name ?? "—"}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{t(locale, "settings")}</p>
-              </div>
-              <Settings className="size-4 text-muted-foreground ml-auto shrink-0" />
+              <Shield className="size-4 shrink-0" />
+              {!collapsed && <span className="text-xs">Admin панель</span>}
             </button>
           )}
+          <button
+            onClick={() => { router.push("/settings"); onMobileClose?.() }}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-3 py-2 w-full text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors",
+              collapsed && "justify-center"
+            )}
+          >
+            <Settings className="size-4 shrink-0" />
+            {!collapsed && <span className="text-xs">{t(locale, "settings")}</span>}
+          </button>
         </div>
-
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }

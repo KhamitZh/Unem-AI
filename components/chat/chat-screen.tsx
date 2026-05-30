@@ -36,6 +36,8 @@ import { BottomNav } from "./bottom-nav"
 import { useSubscription } from "@/lib/use-subscription"
 import { UpgradeModal } from "@/components/subscription/upgrade-modal"
 import { SubscriptionBadge } from "@/components/subscription/subscription-badge"
+import { FunctionsPanel } from "./functions-panel"
+import { History } from "lucide-react"
 
 export function ChatScreen() {
   const { profile, expenses, goals } = useApp()
@@ -44,6 +46,8 @@ export function ChatScreen() {
   const [input, setInput] = useState("")
   const { canChat, incrementChat, chatMessagesLeft, isPro } = useSubscription()
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showFunctions, setShowFunctions] = useState(false)
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false)
   const [upgradeReason, setUpgradeReason] = useState<"chat" | "finance" | "goal" | "family" | "csv" | "analytics">("chat")  
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [dbFinances, setDbFinances] = useState<any[]>([])
@@ -249,22 +253,22 @@ export function ChatScreen() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-mesh opacity-60"
       />
-      <BottomNav />
+      <BottomNav onFunctionsClick={() => setShowFunctions(true)} />
+      <FunctionsPanel open={showFunctions} onClose={() => setShowFunctions(false)} />
       <NotificationBanner />
       <GoalChecker />
-      <ChatSidebar
-        onNewChat={newChat}
-        sessions={sessions}
-        currentSessionId={sessionId}
-        onSelectSession={(id) => setSessionId(id)}
-        onDeleteSession={deleteSession}
-        onRenameSession={renameSession}
-        onPinSession={pinSession}
-      />
+      <ChatSidebar showMobile={showMobileSidebar} onMobileClose={() => setShowMobileSidebar(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-border/60 bg-background/40 px-3 py-3 backdrop-blur md:px-6">
           <div className="flex items-center gap-2 md:hidden">
+            {/* Мобильде чат тарихы батырмасы */}
+            <button
+              onClick={() => setShowMobileSidebar(true)}
+              className="md:hidden rounded-full p-2 hover:bg-muted/40 transition-colors"
+            >
+              <History className="size-5" />
+            </button>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-9 rounded-full">
