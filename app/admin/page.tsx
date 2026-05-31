@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Users, Crown, Zap, Gift, RefreshCw,
-  Shield, BarChart2, MessageSquare, ArrowLeft
+  Shield, BarChart2, MessageSquare, ArrowLeft, Infinity
 } from "lucide-react"
 
 interface User {
@@ -12,6 +12,7 @@ interface User {
   name: string
   locale: string
   is_admin: boolean
+  user_number: number
   created_at: string
   subscription?: {
     plan: string
@@ -79,7 +80,6 @@ export default function AdminPage() {
 
     const usersData = await usersRes.json()
     const statsData = await statsRes.json()
-
     setUsers(usersData.users ?? [])
     setStats(statsData)
     setLoading(false)
@@ -92,15 +92,11 @@ export default function AdminPage() {
 
   async function handleSetPlan(userId: string) {
     setSaving(userId)
+    const days = newDays === "∞" ? 36500 : Number(newDays)
     const res = await fetch("/api/admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "setPlan",
-        userId,
-        plan: newPlan,
-        days: Number(newDays),
-      }),
+      body: JSON.stringify({ action: "setPlan", userId, plan: newPlan, days }),
     })
     const data = await res.json()
     if (data.success) {
@@ -142,7 +138,9 @@ export default function AdminPage() {
   }
 
   const filteredUsers = users.filter((u) => {
-    const matchSearch = u.name?.toLowerCase().includes(search.toLowerCase())
+    const matchSearch =
+      u.name?.toLowerCase().includes(search.toLowerCase()) ||
+      String(u.user_number)?.includes(search)
     const matchPlan = planFilter === "all" || u.subscription?.plan === planFilter
     return matchSearch && matchPlan
   })
@@ -173,10 +171,7 @@ export default function AdminPage() {
         </button>
         <Shield className="size-5 text-primary" />
         <h1 className="text-lg font-semibold">Admin панель</h1>
-        <button
-          onClick={loadData}
-          className="ml-auto p-2 rounded-full hover:bg-muted/40 transition-colors"
-        >
+        <button onClick={loadData} className="ml-auto p-2 rounded-full hover:bg-muted/40 transition-colors">
           <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
@@ -271,7 +266,7 @@ export default function AdminPage() {
             </p>
             <input
               type="text"
-              placeholder="Іздеу..."
+              placeholder="Іздеу (аты немесе ID)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary transition-colors"
@@ -306,6 +301,9 @@ export default function AdminPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-sm truncate">{user.name ?? "—"}</p>
+                        <span className="text-[10px] bg-muted/50 text-muted-foreground px-2 py-0.5 rounded-full font-mono">
+                          #{user.user_number ?? "—"}
+                        </span>
                         <PlanBadge plan={user.subscription?.plan ?? "free"} />
                         {user.is_admin && (
                           <span className="text-[10px] bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded-full">Admin</span>
@@ -341,13 +339,17 @@ export default function AdminPage() {
                           <option value="pro">Pro</option>
                           <option value="family">Отбасы</option>
                         </select>
-                        <input
-                          type="number"
+                        <select
                           value={newDays}
                           onChange={(e) => setNewDays(e.target.value)}
-                          placeholder="Күн"
-                          className="w-20 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
-                        />
+                          className="w-28 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
+                        >
+                          <option value="7">7 күн</option>
+                          <option value="30">30 күн</option>
+                          <option value="90">90 күн</option>
+                          <option value="365">1 жыл</option>
+                          <option value="∞">♾️ Шексіз</option>
+                        </select>
                         <button
                           onClick={() => handleSetPlan(user.id)}
                           disabled={saving === user.id}

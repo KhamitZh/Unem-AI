@@ -145,7 +145,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
 
         {/* Функциялар тізімі — desktop */}
         {showFunctions && !collapsed && (
-          <div className="px-2 pb-2 space-y-3 shrink-0 border-b border-border">
+          <div className="px-2 pb-2 space-y-3 border-b border-border overflow-y-auto max-h-[50vh]">
             {[
               {
                 label: locale === "kk" ? "💰 Қаржы" : locale === "ru" ? "💰 Финансы" : "💰 Finance",

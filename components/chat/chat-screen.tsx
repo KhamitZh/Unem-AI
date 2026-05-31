@@ -299,9 +299,16 @@ export function ChatScreen() {
           <div className="hidden items-center gap-2.5 md:flex">
             <SubscriptionBadge onClick={() => setShowUpgrade(true)} />
             <span className="size-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm text-muted-foreground">
-              {t(locale, "online")} · gpt-4o-mini
-            </span>
+            <div className="flex items-center gap-1.5">
+              <div className={`size-2 rounded-full animate-pulse ${
+                canChat() ? "bg-green-500" : "bg-red-500"
+              }`} />
+              <span className="text-xs text-muted-foreground">
+                {canChat()
+                  ? (profile.locale === "kk" ? "онлайн" : profile.locale === "ru" ? "онлайн" : "online")
+                  : (profile.locale === "kk" ? "лимит бітті" : profile.locale === "ru" ? "лимит исчерпан" : "limit reached")}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5">

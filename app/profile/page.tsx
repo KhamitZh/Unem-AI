@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Calendar, TrendingUp, TrendingDown, Target } from "lucide-react"
+import { ArrowLeft, User, Calendar, TrendingUp, TrendingDown, Target, Trophy, Copy, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
-import { Trophy, Star, Medal } from "lucide-react"
 
 function fmt(n: number): string {
   if (!n || n <= 0) return "—"
@@ -23,11 +22,20 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [joinDate, setJoinDate] = useState<string>("")
   const [achievements, setAchievements] = useState<any[]>([])
+  const [userNumber, setUserNumber] = useState<number | null>(null)
+  const [copied, setCopied] = useState(false)
+  const [dbFinances, setDbFinances] = useState<any[]>([])
 
   useEffect(() => {
+    // Achievements алу
     fetch("/api/achievements")
       .then((r) => r.json())
       .then((d) => setAchievements(d.achievements ?? []))
+
+    // Finances алу
+    fetch("/api/finances")
+      .then((r) => r.json())
+      .then((d) => setDbFinances(d.finances ?? []))
   }, [])
 
   useEffect(() => {
@@ -40,13 +48,37 @@ export default function ProfilePage() {
           { year: "numeric", month: "long", day: "numeric" }
         ))
       }
+
+      // User number алу
+      if (data.user?.id) {
+        supabase
+          .from("profiles")
+          .select("user_number")
+          .eq("id", data.user.id)
+          .single()
+          .then(({ data: profileData }) => {
+            setUserNumber(profileData?.user_number ?? null)
+          })
+      }
     })
   }, [locale])
 
-  const income = profile.estimatedIncome ?? 0
-  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
-  const savings = Math.max(income - totalExpenses, 0)
-  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0
+  // Finances деректері
+  const incomes = dbFinances.filter((f) => f.type === "income")
+  const expensesList = dbFinances.filter((f) => f.type === "expense")
+  const goalsList = dbFinances.filter((f) => f.type === "goal")
+
+  const totalIncome = incomes.reduce((s, i) => s + i.amount, 0)
+  const totalExpenses = expensesList.reduce((s, e) => s + e.amount, 0)
+  const savings = Math.max(totalIncome - totalExpenses, 0)
+  const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0
+
+  function copyId() {
+    if (!userNumber) return
+    navigator.clipboard.writeText(String(userNumber))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,13 +94,29 @@ export default function ProfilePage() {
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
 
-        {/* Аватар + Аты */}
+        {/* Аватар + Аты + ID */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col items-center text-center">
           <div className="size-20 rounded-full bg-primary/15 flex items-center justify-center text-primary text-3xl font-bold mb-4">
             {(profile.name?.[0] ?? user?.email?.[0] ?? "?").toUpperCase()}
           </div>
           <h2 className="text-xl font-bold">{profile.name ?? "—"}</h2>
           <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
+
+          {/* User ID */}
+          {userNumber && (
+            <button
+              onClick={copyId}
+              className="flex items-center gap-2 mt-3 bg-muted/40 hover:bg-muted/60 transition-colors rounded-full px-4 py-1.5"
+            >
+              <span className="text-xs text-muted-foreground">ID:</span>
+              <span className="font-mono text-sm font-bold text-primary">#{userNumber}</span>
+              {copied
+                ? <Check className="size-3.5 text-green-500" />
+                : <Copy className="size-3.5 text-muted-foreground" />
+              }
+            </button>
+          )}
+
           {joinDate && (
             <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
               <Calendar className="size-3.5" />
@@ -90,7 +138,7 @@ export default function ProfilePage() {
                 <TrendingUp className="size-4 text-primary" />
                 <span className="text-xs text-muted-foreground">{t(locale, "income")}</span>
               </div>
-              <p className="font-mono font-bold text-lg">{fmt(income)}</p>
+              <p className="font-mono font-bold text-lg">{fmt(totalIncome)}</p>
               <p className="text-xs text-muted-foreground">{t(locale, "perMonth")}</p>
             </div>
             <div className="p-4">
@@ -121,7 +169,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Мақсаттар */}
-        {goals.length > 0 && (
+        {goalsList.length > 0 && (
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="px-4 py-3 border-b border-border">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -129,13 +177,13 @@ export default function ProfilePage() {
               </p>
             </div>
             <div className="divide-y divide-border">
-              {goals.map((g) => {
-                const months = savings > 0 ? Math.ceil(g.price / savings) : null
+              {goalsList.map((g) => {
+                const months = savings > 0 ? Math.ceil(g.amount / savings) : null
                 return (
                   <div key={g.id} className="px-4 py-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-medium truncate">{g.title}</p>
-                      <p className="text-xs text-muted-foreground font-mono">{fmt(g.price)}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{fmt(g.amount)}</p>
                     </div>
                     {months && (
                       <div className="text-right shrink-0">
@@ -151,29 +199,29 @@ export default function ProfilePage() {
         )}
 
         {/* Жетістіктер */}
-          {achievements.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <Trophy className="size-4 text-yellow-400" />
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                  {locale === "kk" ? "Жетістіктер" : locale === "ru" ? "Достижения" : "Achievements"}
-                </p>
-              </div>
-              <div className="p-3 flex flex-wrap gap-2">
-                {achievements.map((a) => (
-                  <div key={a.id} className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2">
-                    <span className="text-lg">
-                      {a.type === "hero" ? "🏆" : a.type === "saver" ? "💰" : "⭐"}
-                    </span>
-                    <div>
-                      <p className="text-xs font-medium">{a.title}</p>
-                      {a.description && <p className="text-[10px] text-muted-foreground">{a.description}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {achievements.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+              <Trophy className="size-4 text-yellow-400" />
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {locale === "kk" ? "Жетістіктер" : locale === "ru" ? "Достижения" : "Achievements"}
+              </p>
             </div>
-          )}
+            <div className="p-3 flex flex-wrap gap-2">
+              {achievements.map((a) => (
+                <div key={a.id} className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2">
+                  <span className="text-lg">
+                    {a.type === "hero" ? "🏆" : a.type === "saver" ? "💰" : "⭐"}
+                  </span>
+                  <div>
+                    <p className="text-xs font-medium">{a.title}</p>
+                    {a.description && <p className="text-[10px] text-muted-foreground">{a.description}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Баптауларға өту */}
         <button
