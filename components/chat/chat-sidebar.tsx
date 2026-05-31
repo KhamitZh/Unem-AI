@@ -4,7 +4,10 @@ import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import {
   Plus, MessageSquare, Trash2, Pencil, Check, X,
-  ChevronLeft, ChevronRight, Settings, Pin, PinOff, Shield
+  ChevronLeft, ChevronRight, Settings, Pin, PinOff, Shield,
+  TrendingUp, TrendingDown, Target, BarChart2, DollarSign,
+  Receipt, BookOpen, Users, Trophy, Gift, Percent, LineChart,
+  Building2, Sunset, Sparkles, LayoutGrid
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -20,6 +23,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
   const { profile } = useApp()
   const locale = profile.locale
   const [sessions, setSessions] = useState<any[]>([])
+  const [showFunctions, setShowFunctions] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState("")
@@ -116,6 +120,94 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
             {!collapsed && <span className="text-sm font-medium">{t(locale, "newChat")}</span>}
           </button>
         </div>
+
+        {/* Функциялар батырмасы — desktop */}
+        <div className="px-2 py-1 shrink-0">
+          <button
+            onClick={() => setShowFunctions(!showFunctions)}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-3 py-2.5 w-full hover:bg-muted/40 transition-colors",
+              showFunctions ? "bg-muted/40 text-foreground" : "text-muted-foreground",
+              collapsed && "justify-center"
+            )}
+          >
+            <LayoutGrid className="size-4 shrink-0" />
+            {!collapsed && (
+              <>
+                <span className="text-sm flex-1 text-left">
+                  {locale === "kk" ? "Функциялар" : locale === "ru" ? "Функции" : "Functions"}
+                </span>
+                <ChevronRight className={`size-3.5 transition-transform ${showFunctions ? "rotate-90" : ""}`} />
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Функциялар тізімі — desktop */}
+        {showFunctions && !collapsed && (
+          <div className="px-2 pb-2 space-y-3 shrink-0 border-b border-border">
+            {[
+              {
+                label: locale === "kk" ? "💰 Қаржы" : locale === "ru" ? "💰 Финансы" : "💰 Finance",
+                items: [
+                  { icon: TrendingUp, label: locale === "kk" ? "Кіріс" : locale === "ru" ? "Доходы" : "Income", href: "/finances/income", color: "text-green-500" },
+                  { icon: TrendingDown, label: locale === "kk" ? "Шығыс" : locale === "ru" ? "Расходы" : "Expenses", href: "/finances/expenses", color: "text-red-400" },
+                  { icon: Target, label: locale === "kk" ? "Мақсаттар" : locale === "ru" ? "Цели" : "Goals", href: "/finances/goals", color: "text-accent" },
+                  { icon: Receipt, label: locale === "kk" ? "Транзакциялар" : locale === "ru" ? "Транзакции" : "Transactions", href: "/transactions", color: "text-orange-400" },
+                ],
+              },
+              {
+                label: locale === "kk" ? "📊 Талдау" : locale === "ru" ? "📊 Аналитика" : "📊 Analytics",
+                items: [
+                  { icon: BarChart2, label: locale === "kk" ? "Диаграммалар" : locale === "ru" ? "Диаграммы" : "Charts", href: "/analytics", color: "text-blue-400" },
+                  { icon: Target, label: locale === "kk" ? "Мақсат тренер" : locale === "ru" ? "Тренер целей" : "Goal Tracker", href: "/goal-tracker", color: "text-purple-400" },
+                  { icon: Sparkles, label: locale === "kk" ? "AI Жоспар" : locale === "ru" ? "AI План" : "AI Plan", href: "/financial-plan", color: "text-violet-400" },
+                ],
+              },
+              {
+                label: locale === "kk" ? "🧮 Калькуляторлар" : locale === "ru" ? "🧮 Калькуляторы" : "🧮 Calculators",
+                items: [
+                  { icon: Percent, label: locale === "kk" ? "Инфляция" : "Инфляция", href: "/inflation", color: "text-red-400" },
+                  { icon: LineChart, label: locale === "kk" ? "Инвестиция" : locale === "ru" ? "Инвестиции" : "Investment", href: "/investment", color: "text-purple-400" },
+                  { icon: Building2, label: locale === "kk" ? "Депозиттер" : locale === "ru" ? "Депозиты" : "Deposits", href: "/deposits", color: "text-green-400" },
+                  { icon: Sunset, label: locale === "kk" ? "Зейнет" : locale === "ru" ? "Пенсия" : "Retirement", href: "/retirement", color: "text-orange-400" },
+                  { icon: DollarSign, label: locale === "kk" ? "Валюта" : "Валюта", href: "/currency", color: "text-yellow-400" },
+                ],
+              },
+              {
+                label: locale === "kk" ? "📚 Білім" : locale === "ru" ? "📚 Обучение" : "📚 Learning",
+                items: [
+                  { icon: BookOpen, label: locale === "kk" ? "Кітаптар" : locale === "ru" ? "Книги" : "Books", href: "/books", color: "text-emerald-400" },
+                ],
+              },
+              {
+                label: locale === "kk" ? "👥 Әлеуметтік" : locale === "ru" ? "👥 Социальное" : "👥 Social",
+                items: [
+                  { icon: Users, label: locale === "kk" ? "Қоғамдастық" : locale === "ru" ? "Сообщество" : "Community", href: "/community", color: "text-cyan-400" },
+                  { icon: Trophy, label: locale === "kk" ? "Лидерлер" : locale === "ru" ? "Лидеры" : "Leaderboard", href: "/leaderboard", color: "text-yellow-400" },
+                  { icon: Users, label: locale === "kk" ? "Отбасы" : locale === "ru" ? "Семья" : "Family", href: "/family", color: "text-pink-400" },
+                  { icon: Gift, label: locale === "kk" ? "Дос шақыру" : locale === "ru" ? "Пригласить" : "Invite", href: "/referral", color: "text-pink-400" },
+                ],
+              },
+            ].map((group) => (
+              <div key={group.label}>
+                <p className="text-[10px] text-muted-foreground px-2 py-1 uppercase tracking-widest">{group.label}</p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.href}
+                      onClick={() => router.push(item.href)}
+                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 w-full text-left hover:bg-muted/40 transition-colors"
+                    >
+                      <item.icon className={`size-3.5 shrink-0 ${item.color}`} />
+                      <span className="text-xs text-foreground/80 truncate">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Sessions */}
         <div className="flex-1 overflow-y-auto px-2 space-y-1 py-1">
