@@ -116,6 +116,19 @@ export function UpgradeModal({ onClose, reason = "chat" }: Props) {
     setPromoLoading(false)
   }
 
+  async function connectTelegram() {
+    // User ID алу
+    const res = await fetch("/api/auth/me")
+    const data = await res.json()
+    const userId = data.userId
+
+    if (!userId) return
+
+    // Telegram ботқа сілтеме
+    const botUrl = `https://t.me/unemai_support_bot?start=${userId}`
+    window.open(botUrl, "_blank") 
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -222,15 +235,47 @@ export function UpgradeModal({ onClose, reason = "chat" }: Props) {
 
           {/* CTA */}
           <button
-            onClick={() => {
-              window.open("https://t.me/unemai_support", "_blank")
-            }}
-            className="w-full rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white py-3 text-sm font-medium hover:opacity-90 transition"
+            onClick={connectTelegram}
+            className="w-full rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white py-3 text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-2"
           >
-            {locale === "kk" ? `${selectedPlan === "pro" ? "Pro" : "Отбасы"} жоспарын алу →` :
-             locale === "ru" ? `Получить план ${selectedPlan === "pro" ? "Pro" : "Семья"} →` :
-             `Get ${selectedPlan === "pro" ? "Pro" : "Family"} plan →`}
+            <span>✈️</span>
+            {locale === "kk" ? `${selectedPlan === "pro" ? "Pro" : "Отбасы"} алу — Telegram арқылы` :
+            locale === "ru" ? `Получить ${selectedPlan === "pro" ? "Pro" : "Семья"} — через Telegram` :
+            `Get ${selectedPlan === "pro" ? "Pro" : "Family"} — via Telegram`}
           </button>
+
+
+          {/* Реквизиттер */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {locale === "kk" ? "💳 Төлем реквизиттері" :
+              locale === "ru" ? "💳 Реквизиты для оплаты" :
+              "💳 Payment details"}
+            </p>
+            <div className="space-y-1.5">
+              {[
+                { bank: "Kaspi", number: "+7 777 000 0000" },
+                { bank: "Halyk", number: "+7 777 000 0001" },
+                { bank: "Freedom", number: "+7 777 000 0002" },
+              ].map((req) => (
+                <div key={req.bank} className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{req.bank}</span>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(req.number)}
+                    className="font-mono text-xs text-primary hover:opacity-80 transition"
+                  >
+                    {req.number}
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              {locale === "kk" ? "Аударым жасап, скриншотты Telegram-ға жіберіңіз" :
+              locale === "ru" ? "Переведите и отправьте скриншот в Telegram" :
+              "Transfer and send screenshot to Telegram"}
+            </p>
+          </div>
+
 
           <p className="text-center text-xs text-muted-foreground">
             {locale === "kk" ? "Telegram арқылы төлем жасаңыз" :
