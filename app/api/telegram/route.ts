@@ -50,6 +50,21 @@ export async function POST(req: Request) {
       const data = callbackQuery.data
       const chatId = callbackQuery.message.chat.id
 
+      `💳 <b>Төлем реквизиттері:</b>\n\n` +
+      `🟡 <b>Kaspi:</b>\n<code>4400 4300 6500 3359</code>\n\n` +
+      `🟢 <b>Halyk:</b>\n<code>4003 0351 7403 2958</code>\n\n` +
+      `🟠 <b>Freedom:</b>\n<code>4002 8900 3683 2222</code>\n\n` +
+      `👤 Аты: <b>Хамит Х.</b>\n\n` +
+      `📝 <b>Аудару тәртібі:</b>\n` +
+      `1. Карта нөміріне аударыңыз\n` +
+      `2. Скриншотты осында жіберіңіз\n` +
+      `3. 5-10 минутта Pro белсендіріледі!\n\n` +
+      `💰 <b>Бағалар:</b>\n` +
+      `• Pro — 30 күн: 2,990 ₸\n` +
+      `• Pro — 90 күн: 7,490 ₸\n` +
+      `• Pro — 1 жыл: 24,990 ₸\n` +
+      `• Отбасы — 30 күн: 4,990 ₸`
+
       if (data.startsWith("approve_")) {
         const parts = data.split("_")
         const userId = parts[1]
