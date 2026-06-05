@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
+import Script from "next/script"
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -67,6 +68,11 @@ export default function RootLayout({
               }
             `,
           }}
+        />
+
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
         />
         
         <ThemeProvider
