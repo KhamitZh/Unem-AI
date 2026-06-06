@@ -115,9 +115,7 @@ export default function LandingPage() {
       }`}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">U</span>
-            </div>
+            <img src="/logo.png" alt="Unem AI" className="size-8 rounded-xl object-cover" />
             <span className="font-bold text-lg">Unem AI</span>
           </div>
           <div className="flex items-center gap-3">
@@ -368,9 +366,7 @@ export default function LandingPage() {
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="size-6 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">U</span>
-            </div>
+            <img src="/logo.png" alt="Unem AI" className="size-6 rounded-lg object-cover" />
             <span className="font-semibold">Unem AI</span>
           </div>
           <p className="text-sm text-muted-foreground">© 2025 Unem AI. Барлық құқықтар қорғалған.</p>

@@ -99,9 +99,7 @@ export default function WebAppPage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/20 to-purple-600/10 px-4 pt-8 pb-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="size-12 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">U</span>
-          </div>
+          <img src="/logo.png" alt="Unem AI" className="size-12 rounded-2xl object-cover" />
           <div>
             <h1 className="font-bold text-lg">Unem AI</h1>
             <p className="text-xs text-muted-foreground">

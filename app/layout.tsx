@@ -20,10 +20,20 @@ const display = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
+    description: "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші",
+    images: ["/logo.png"],
+  },
+  
   title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
   description:
     "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші: үнемдеу, мақсатқа жинау, инвестициялық сауаттылық.",
-  generator: "v0.app",
+  generator: "Zhanuzakov KH",
   applicationName: "Unem AI",
   keywords: [
     "Unem AI",

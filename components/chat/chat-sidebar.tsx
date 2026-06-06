@@ -93,19 +93,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
       )}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-3 border-b border-border shrink-0">
-          {!collapsed && (
-            <span className="font-bold text-sm bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
-              Unem AI
-            </span>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="rounded-full p-1.5 hover:bg-muted/40 transition-colors ml-auto"
-          >
-            {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
-          </button>
-        </div>
+        <img src="/logo.png" alt="Unem AI" className="size-8 rounded-xl object-cover" />
 
         {/* New chat */}
         <div className="px-2 py-2 shrink-0">
