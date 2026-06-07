@@ -22,39 +22,56 @@ export function BottomNav({ onFunctionsClick }: { onFunctionsClick?: () => void 
   const isProfile = pathname === "/profile" || pathname === "/settings"
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-background/95 backdrop-blur">
-      <div className="flex items-center justify-around px-2 py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      {/* Blur background */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-xl border-t border-white/5" />
+      
+      <div className="relative flex items-center justify-around px-6 py-3">
         {/* Чат */}
         <button
           onClick={() => router.push("/")}
-          className={cn(
-            "flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors",
-            isChat ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
-          )}
+          className="flex flex-col items-center gap-1.5 relative"
         >
-          <MessageSquare className="size-5" />
-          <span className="text-[10px] font-medium">{tx.chat}</span>
+          <div className={cn(
+            "size-10 rounded-2xl flex items-center justify-center transition-all duration-300",
+            isChat 
+              ? "bg-green-500 shadow-lg shadow-green-500/30" 
+              : "bg-white/5 hover:bg-white/10"
+          )}>
+            <MessageSquare className={cn("size-5 transition-colors", isChat ? "text-white" : "text-muted-foreground")} />
+          </div>
+          <span className={cn("text-[10px] font-medium transition-colors", isChat ? "text-green-400" : "text-muted-foreground")}>
+            {tx.chat}
+          </span>
         </button>
 
-        {/* Функциялар */}
+        {/* Функциялар — орталық үлкен батырма */}
         <button
           onClick={onFunctionsClick}
-          className="flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors text-muted-foreground hover:text-foreground"
+          className="flex flex-col items-center gap-1.5 -mt-4 relative"
         >
-          <LayoutGrid className="size-5" />
-          <span className="text-[10px] font-medium">{tx.functions}</span>
+          <div className="size-14 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-xl shadow-green-500/40 border-4 border-background">
+            <img src="/logo.png" alt="Unem AI" className="size-8 rounded-xl object-cover" />
+          </div>
+          <span className="text-[10px] font-medium text-green-400">{tx.functions}</span>
         </button>
 
         {/* Профиль */}
         <button
           onClick={() => router.push("/profile")}
-          className={cn(
-            "flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors",
-            isProfile ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
-          )}
+          className="flex flex-col items-center gap-1.5"
         >
-          <User className="size-5" />
-          <span className="text-[10px] font-medium">{tx.profile}</span>
+          <div className={cn(
+            "size-10 rounded-2xl flex items-center justify-center transition-all duration-300",
+            isProfile 
+              ? "bg-green-500 shadow-lg shadow-green-500/30" 
+              : "bg-white/5 hover:bg-white/10"
+          )}>
+            <User className={cn("size-5 transition-colors", isProfile ? "text-white" : "text-muted-foreground")} />
+          </div>
+          <span className={cn("text-[10px] font-medium transition-colors", isProfile ? "text-green-400" : "text-muted-foreground")}>
+            {tx.profile}
+          </span>
         </button>
       </div>
     </nav>

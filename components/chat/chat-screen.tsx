@@ -260,93 +260,34 @@ export function ChatScreen() {
       <ChatSidebar showMobile={showMobileSidebar} onMobileClose={() => setShowMobileSidebar(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b border-border/60 bg-background/40 px-3 py-3 backdrop-blur md:px-6">
-          <div className="flex items-center gap-2 md:hidden">
-            {/* Мобильде чат тарихы батырмасы */}
-            <button
-              onClick={() => setShowMobileSidebar(true)}
-              className="md:hidden rounded-full p-2 hover:bg-muted/40 transition-colors"
-            >
-              <History className="size-5" />
-            </button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-9 rounded-full">
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-4">
-                <SheetHeader className="p-0 pb-3">
-                  <SheetTitle asChild>
-                    <AIWordmark />
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="mt-2">
-                  <Button
-                    onClick={newChat}
-                    className="mb-3 h-10 w-full rounded-xl"
-                    variant="outline"
-                  >
-                    {t(locale, "newChat")}
-                  </Button>
-                  <ProfileCard />
-                </div>
-              </SheetContent>
-            </Sheet>
-            <AIWordmark />
-          </div>
+        {/* Header */}
+        <header className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+          {/* Mobile sidebar батырмасы */}
+          <button
+            onClick={() => setShowMobileSidebar(true)}
+            className="md:hidden size-9 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <History className="size-4 text-white/60" />
+          </button>
 
-          <div className="hidden items-center gap-2.5 md:flex">
-            <SubscriptionBadge onClick={() => setShowUpgrade(true)} />
-            <span className="size-2 rounded-full bg-primary animate-pulse" />
-            <div className="flex items-center gap-1.5">
-              <div className={`size-2 rounded-full animate-pulse ${
-                canChat() ? "bg-green-500" : "bg-red-500"
-              }`} />
-              <span className="text-xs text-muted-foreground">
-                {canChat()
-                  ? (profile.locale === "kk" ? "онлайн" : profile.locale === "ru" ? "онлайн" : "online")
-                  : (profile.locale === "kk" ? "лимит бітті" : profile.locale === "ru" ? "лимит исчерпан" : "limit reached")}
-              </span>
+          {/* Лого + Аты */}
+          <div className="flex items-center gap-2.5 flex-1">
+            <img src="/logo.png" alt="Unem AI" className="size-8 rounded-xl object-cover" />
+            <div>
+              <p className="font-bold text-sm text-white leading-none">Unem AI</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <div className={`size-1.5 rounded-full animate-pulse ${canChat() ? "bg-green-400" : "bg-red-400"}`} />
+                <span className="text-[10px] text-white/40">
+                  {canChat()
+                    ? (profile.locale === "kk" ? "онлайн" : profile.locale === "ru" ? "онлайн" : "online")
+                    : (profile.locale === "kk" ? "лимит бітті" : profile.locale === "ru" ? "лимит" : "limit")}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-9 gap-1.5 rounded-full">
-                  <Globe className="size-4" />
-                  <span className="hidden text-xs sm:inline">
-                    {LOCALE_LABEL[locale]}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {(Object.keys(LOCALE_LABEL) as Locale[]).map((l) => (
-                  <DropdownMenuItem
-                    key={l}
-                    onClick={() => useApp.getState().setLocale(l)}
-                    className={cn(locale === l && "bg-accent/40")}
-                  >
-                    {LOCALE_LABEL[l]}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-9 rounded-full"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-4" />
-              ) : (
-                <Moon className="size-4" />
-              )}
-            </Button>
-          </div>
+          {/* Subscription badge */}
+          <SubscriptionBadge onClick={() => setShowUpgrade(true)} />
         </header>
 
         <div ref={scrollerRef} className="nice-scroll flex-1 overflow-y-auto">
