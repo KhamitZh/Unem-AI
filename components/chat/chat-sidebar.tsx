@@ -31,8 +31,14 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
 
   useEffect(() => {
     loadSessions()
-    fetch("/api/admin?action=stats")
-      .then((r) => r.ok ? setIsAdmin(true) : null)
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then(async (data) => {
+        if (data.userId) {
+          const res = await fetch("/api/admin?action=stats")
+          if (res.ok) setIsAdmin(true)
+        }
+      })
       .catch(() => {})
   }, [])
 
@@ -93,7 +99,25 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
       )}>
 
         {/* Header */}
-        <img src="/logo.png" alt="Unem AI" className="size-8 rounded-xl object-cover" />
+        <div className="flex items-center justify-between px-3 py-3 border-b border-border shrink-0">
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Unem AI" className="size-7 rounded-lg object-cover" />
+              <span className="font-bold text-sm bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                Unem AI
+              </span>
+            </div>
+          )}
+          {collapsed && (
+            <img src="/logo.png" alt="Unem AI" className="size-7 rounded-lg object-cover mx-auto" />
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="rounded-full p-1.5 hover:bg-muted/40 transition-colors ml-auto"
+          >
+            {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+          </button>
+        </div>
 
         {/* New chat */}
         <div className="px-2 py-2 shrink-0">

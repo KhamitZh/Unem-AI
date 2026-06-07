@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Lock, LogOut, ChevronRight } from "lucide-react"
+import { ArrowLeft, User, Lock, LogOut, ChevronRight, Sun, Moon, Globe } from "lucide-react"
+import { useTheme } from "next-themes"
+import { LOCALE_LABEL } from "@/lib/i18n"
+import type { Locale } from "@/lib/types"
 import { createClient } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -25,6 +28,8 @@ export default function SettingsPage() {
   const [showPasswordForm, setShowPasswordForm] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
   const [saving, setSaving] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const { setLocale } = useApp()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -94,6 +99,63 @@ export default function SettingsPage() {
             {message.text}
           </div>
         )}
+
+        {/* Тіл таңдау */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {locale === "kk" ? "Тіл" : locale === "ru" ? "Язык" : "Language"}
+            </p>
+          </div>
+          <div className="flex divide-x divide-border">
+            {(["kk", "ru", "en"] as Locale[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLocale(l)}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  locale === l
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted/40"
+                }`}
+              >
+                {LOCALE_LABEL[l]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Тема таңдау */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {locale === "kk" ? "Тема" : locale === "ru" ? "Тема" : "Theme"}
+            </p>
+          </div>
+          <div className="flex divide-x divide-border">
+            <button
+              onClick={() => setTheme("dark")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+                theme === "dark"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+            >
+              <Moon className="size-4" />
+              {locale === "kk" ? "Қараңғы" : locale === "ru" ? "Тёмная" : "Dark"}
+            </button>
+            <button
+              onClick={() => setTheme("light")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+                theme === "light"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+            >
+              <Sun className="size-4" />
+              {locale === "kk" ? "Ашық" : locale === "ru" ? "Светлая" : "Light"}
+            </button>
+          </div>
+        </div>
 
         {/* Subscription */}
         {!subLoading && subData && (
