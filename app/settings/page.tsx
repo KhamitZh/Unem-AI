@@ -144,6 +144,17 @@ export default function SettingsPage() {
               {locale === "kk" ? "Қараңғы" : locale === "ru" ? "Тёмная" : "Dark"}
             </button>
             <button
+              onClick={() => setTheme("system")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+                theme === "system"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+            >
+              <Globe className="size-4" />
+              {locale === "kk" ? "Жүйе" : locale === "ru" ? "Системная" : "System"}
+            </button>
+            <button
               onClick={() => setTheme("light")}
               className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
                 theme === "light"
