@@ -35,6 +35,7 @@ export default function TransactionsPage() {
   const { profile } = useApp()
   const locale = profile.locale
   const fileRef = useRef<HTMLInputElement>(null)
+  const pdfRef = useRef<HTMLInputElement>(null)
 
   const [transactions, setTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -131,6 +132,30 @@ export default function TransactionsPage() {
       setShowPreview(true)
     } else {
       showMsg(tx.parseError, "error")
+    }
+    setParsing(false)
+    if (fileRef.current) fileRef.current.value = ""
+  }
+
+  async function handlePDF(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setParsing(true)
+
+    const formData = new FormData()
+    formData.append("pdf", file)
+
+    const res = await fetch("/api/transactions/parse-pdf", {
+      method: "POST",
+      body: formData,
+    })
+    const data = await res.json()
+
+    if (data.transactions) {
+      setPreview(data.transactions)
+      setShowPreview(true)
+    } else {
+      showMsg(data.error ?? tx.parseError, "error")
     }
     setParsing(false)
     if (fileRef.current) fileRef.current.value = ""
@@ -241,6 +266,15 @@ export default function TransactionsPage() {
             <MessageSquare className="size-4" />
             {tx.parseSMS}
           </button>
+          <button
+            onClick={() => pdfRef.current?.click()}
+            disabled={parsing}
+            className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-4 text-sm text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors disabled:opacity-50"
+          >
+            {parsing ? <Loader2 className="size-4 animate-spin" /> : <span>📄</span>}
+            Kaspi PDF
+          </button>
+          <input ref={pdfRef} type="file" accept=".pdf" onChange={handlePDF} className="hidden" />
         </div>
 
         <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleCSV} className="hidden" />
