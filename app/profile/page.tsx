@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Calendar, TrendingUp, TrendingDown, Target, Trophy, Copy, Check } from "lucide-react"
+import { ArrowLeft, User, Calendar, TrendingUp, TrendingDown, Target, Trophy, Copy, Check, Camera } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -24,6 +24,9 @@ export default function ProfilePage() {
   const [achievements, setAchievements] = useState<any[]>([])
   const [userNumber, setUserNumber] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [dbFinances, setDbFinances] = useState<any[]>([])
 
   useEffect(() => {
@@ -47,6 +50,15 @@ export default function ProfilePage() {
           locale === "kk" ? "kk-KZ" : locale === "ru" ? "ru-RU" : "en-US",
           { year: "numeric", month: "long", day: "numeric" }
         ))
+      supabase
+        .from("profiles")
+        .select("user_number, avatar_url")
+        .eq("id", data.user.id)
+        .single()
+        .then(({ data: profileData }) => {
+          setUserNumber(profileData?.user_number ?? null)
+          setAvatarUrl(profileData?.avatar_url ?? null)
+        })
       }
 
       // User number алу
@@ -96,8 +108,42 @@ export default function ProfilePage() {
 
         {/* Аватар + Аты + ID */}
         <div className="rounded-2xl border border-border bg-card p-6 flex flex-col items-center text-center">
-          <div className="size-20 rounded-full bg-primary/15 flex items-center justify-center text-primary text-3xl font-bold mb-4">
-            {(profile.name?.[0] ?? user?.email?.[0] ?? "?").toUpperCase()}
+          {/* Аватар */}
+          <div className="relative mb-4">
+            <div className="size-20 rounded-full bg-primary/15 flex items-center justify-center text-primary text-3xl font-bold overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="size-full object-cover" />
+              ) : (
+                (profile.name?.[0] ?? user?.email?.[0] ?? "?").toUpperCase()
+              )}
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 size-7 rounded-full bg-primary flex items-center justify-center hover:opacity-90 transition"
+            >
+              {uploadingAvatar
+                ? <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Camera className="size-3.5 text-white" />
+              }
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                setUploadingAvatar(true)
+                const formData = new FormData()
+                formData.append("avatar", file)
+                const res = await fetch("/api/avatar", { method: "POST", body: formData })
+                const data = await res.json()
+                if (data.avatarUrl) setAvatarUrl(data.avatarUrl + "?t=" + Date.now())
+                setUploadingAvatar(false)
+              }}
+            />
           </div>
           <h2 className="text-xl font-bold">{profile.name ?? "—"}</h2>
           <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
