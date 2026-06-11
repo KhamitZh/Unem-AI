@@ -146,6 +146,7 @@ const kk: Dict = {
   referral: "Дос шақыру",
   leaderboard: "Лидерлер",
   community: "Қоғамдастық",
+  stocks: "KASE Нарық",
 }
 
 const ru: Dict = {
@@ -283,6 +284,7 @@ const ru: Dict = {
   referral: "Пригласить друга",
   leaderboard: "Лидеры",
   community: "Сообщество",
+  stocks: "Рынок KASE",
 }
 
 const en: Dict = {
@@ -420,6 +422,7 @@ const en: Dict = {
   referral: "Invite friend",
   leaderboard: "Leaderboard",
   community: "Community",
+  stocks: "KASE Market",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
