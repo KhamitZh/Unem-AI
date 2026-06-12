@@ -185,6 +185,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
                   { icon: Sunset, label: locale === "kk" ? "Зейнет" : locale === "ru" ? "Пенсия" : "Retirement", href: "/retirement", color: "text-orange-400" },
                   { icon: DollarSign, label: locale === "kk" ? "Валюта" : "Валюта", href: "/currency", color: "text-yellow-400" },
                   { icon: Activity, label: locale === "kk" ? "KASE Нарық" : locale === "ru" ? "Рынок KASE" : "KASE Market", href: "/stocks", color: "text-blue-400" },
+                  { icon: Activity, label: locale === "kk" ? "Крипто" : "Крипто", href: "/crypto", color: "text-yellow-400" },
                 ],
               },
               {
