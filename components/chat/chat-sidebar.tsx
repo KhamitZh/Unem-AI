@@ -174,6 +174,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
                   { icon: BarChart2, label: locale === "kk" ? "Диаграммалар" : locale === "ru" ? "Диаграммы" : "Charts", href: "/analytics", color: "text-blue-400" },
                   { icon: Target, label: locale === "kk" ? "Мақсат тренер" : locale === "ru" ? "Тренер целей" : "Goal Tracker", href: "/goal-tracker", color: "text-purple-400" },
                   { icon: Sparkles, label: locale === "kk" ? "AI Жоспар" : locale === "ru" ? "AI План" : "AI Plan", href: "/financial-plan", color: "text-violet-400" },
+                  { icon: Sparkles, label: locale === "kk" ? "AI Инвестиция" : locale === "ru" ? "AI Инвестиции" : "AI Invest", href: "/ai-invest", color: "text-violet-400" },
                 ],
               },
               {
