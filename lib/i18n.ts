@@ -148,6 +148,7 @@ const kk: Dict = {
   community: "Қоғамдастық",
   stocks: "KASE Нарық",
   crypto: "Крипто",
+  tax: "Салық",
 }
 
 const ru: Dict = {
@@ -286,7 +287,8 @@ const ru: Dict = {
   leaderboard: "Лидеры",
   community: "Сообщество",
   stocks: "Рынок KASE",
-   crypto: "Крипто",
+  crypto: "Крипто",
+  tax: "Налоги",
 }
 
 const en: Dict = {
@@ -426,6 +428,7 @@ const en: Dict = {
   community: "Community",
   stocks: "KASE Market",
   crypto: "Crypto",
+  tax: "Tax",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }

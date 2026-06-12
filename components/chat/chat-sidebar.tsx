@@ -7,7 +7,7 @@ import {
   ChevronLeft, ChevronRight, Settings, Pin, PinOff, Shield,
   TrendingUp, TrendingDown, Target, BarChart2, DollarSign,
   Receipt, BookOpen, Users, Trophy, Gift, Percent, LineChart,
-  Building2, Sunset, Sparkles, LayoutGrid, Activity
+  Building2, Sunset, Sparkles, LayoutGrid, Activity, FileText
 } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { t } from "@/lib/i18n"
@@ -183,6 +183,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
                   { icon: LineChart, label: locale === "kk" ? "Инвестиция" : locale === "ru" ? "Инвестиции" : "Investment", href: "/investment", color: "text-purple-400" },
                   { icon: Building2, label: locale === "kk" ? "Депозиттер" : locale === "ru" ? "Депозиты" : "Deposits", href: "/deposits", color: "text-green-400" },
                   { icon: Sunset, label: locale === "kk" ? "Зейнет" : locale === "ru" ? "Пенсия" : "Retirement", href: "/retirement", color: "text-orange-400" },
+                  { icon: FileText, label: locale === "kk" ? "Салық" : locale === "ru" ? "Налоги" : "Tax", href: "/tax", color: "text-blue-400" },
                   { icon: DollarSign, label: locale === "kk" ? "Валюта" : "Валюта", href: "/currency", color: "text-yellow-400" },
                   { icon: Activity, label: locale === "kk" ? "KASE Нарық" : locale === "ru" ? "Рынок KASE" : "KASE Market", href: "/stocks", color: "text-blue-400" },
                   { icon: Activity, label: locale === "kk" ? "Крипто" : "Крипто", href: "/crypto", color: "text-yellow-400" },
