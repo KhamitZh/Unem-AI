@@ -28,6 +28,28 @@ export default function SettingsPage() {
   const [showPasswordForm, setShowPasswordForm] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null)
   const [saving, setSaving] = useState(false)
+  const [memories, setMemories] = useState<any[]>([])
+  const [showMemories, setShowMemories] = useState(false)
+  const [loadingMemories, setLoadingMemories] = useState(false)
+
+  async function loadMemories() {
+    setLoadingMemories(true)
+    const res = await fetch("/api/memories")
+    const data = await res.json()
+    setMemories(data.memories ?? [])
+    setLoadingMemories(false)
+  }
+
+  async function deleteMemory(key: string) {
+    await fetch(`/api/memories?key=${key}`, { method: "DELETE" })
+    setMemories((prev) => prev.filter((m) => m.key !== key))
+  }
+
+  async function clearAllMemories() {
+    if (!confirm(locale === "kk" ? "Барлық жадыны өшіресіз бе?" : locale === "ru" ? "Удалить всю память?" : "Clear all memories?")) return
+    await fetch("/api/memories", { method: "DELETE" })
+    setMemories([])
+  }
   const { theme, setTheme } = useTheme()
   const { setLocale } = useApp()
 
@@ -317,6 +339,60 @@ export default function SettingsPage() {
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-destructive hover:bg-destructive/10 transition-colors"
           >
+          {/* AI Жады */}
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <button
+              onClick={() => { setShowMemories(!showMemories); if (!showMemories) loadMemories() }}
+              className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/40 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-base">🧠</span>
+                <span className="text-sm">
+                  {locale === "kk" ? "AI Жады" : locale === "ru" ? "Память AI" : "AI Memory"}
+                </span>
+              </div>
+              <ChevronRight className={`size-4 text-muted-foreground transition-transform ${showMemories ? "rotate-90" : ""}`} />
+            </button>
+
+            {showMemories && (
+              <div className="border-t border-border">
+                {loadingMemories ? (
+                  <p className="text-center text-xs text-muted-foreground py-4">
+                    {locale === "kk" ? "Жүктелуде..." : locale === "ru" ? "Загрузка..." : "Loading..."}
+                  </p>
+                ) : memories.length === 0 ? (
+                  <p className="text-center text-xs text-muted-foreground py-4">
+                    {locale === "kk" ? "Жады бос" : locale === "ru" ? "Память пуста" : "Memory is empty"}
+                  </p>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {memories.map((memory) => (
+                      <div key={memory.key} className="px-4 py-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-mono text-primary">{memory.key}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{memory.value}</p>
+                        </div>
+                        <button
+                          onClick={() => deleteMemory(memory.key)}
+                          className="shrink-0 text-xs text-destructive hover:opacity-80 transition"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <div className="px-4 py-3">
+                      <button
+                        onClick={clearAllMemories}
+                        className="w-full rounded-xl border border-destructive/30 text-destructive py-2 text-xs hover:bg-destructive/10 transition"
+                      >
+                        {locale === "kk" ? "Барлық жадыны өшіру" : locale === "ru" ? "Очистить всю память" : "Clear all memory"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
             <LogOut className="size-4" />
             <span className="text-sm font-medium">{t(locale, "logout")}</span>
           </button>
