@@ -334,12 +334,7 @@ export default function SettingsPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-destructive hover:bg-destructive/10 transition-colors"
-          >
-          {/* AI Жады */}
+        {/* AI Жады */}
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <button
               onClick={() => { setShowMemories(!showMemories); if (!showMemories) loadMemories() }}
@@ -393,6 +388,12 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
+
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-destructive hover:bg-destructive/10 transition-colors"
+          >
             <LogOut className="size-4" />
             <span className="text-sm font-medium">{t(locale, "logout")}</span>
           </button>

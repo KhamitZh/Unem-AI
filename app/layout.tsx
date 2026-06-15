@@ -20,30 +20,38 @@ const display = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
+  title: {
+    default: "Unem AI — Жеке қаржы ИИ-кеңесшің",
+    template: "%s | Unem AI",
+  },
+  description: "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші: үнемдеу, мақсатқа жинау, инвестициялық сауаттылық.",
+  generator: "Zhanuzakov KH",
+  applicationName: "Unem AI",
+  authors: [{ name: "Zhanuzakov KH", url: "https://unem-ai.vercel.app" }],
+  creator: "Zhanuzakov KH",
+  publisher: "Unem AI",
+  keywords: ["Unem AI", "қаржы", "финансы", "savings", "AI", "инвестиции", "Kazakhstan", "Казахстан", "қазақстан"],
+  robots: { index: true, follow: true },
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
+    shortcut: "/logo.png",
   },
   openGraph: {
+    type: "website",
+    locale: "kk_KZ",
+    url: "https://unem-ai.vercel.app",
+    siteName: "Unem AI",
+    title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
+    description: "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші",
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Unem AI" }],
+  },
+  twitter: {
+    card: "summary",
     title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
     description: "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші",
     images: ["/logo.png"],
   },
-  
-  title: "Unem AI — Жеке қаржы ИИ-кеңесшің",
-  description:
-    "Unem AI — қазақстандық қолданушыларға арналған заманауи ИИ-кеңесші: үнемдеу, мақсатқа жинау, инвестициялық сауаттылық.",
-  generator: "Zhanuzakov KH",
-  applicationName: "Unem AI",
-  keywords: [
-    "Unem AI",
-    "финансы",
-    "qarjy",
-    "savings",
-    "AI",
-    "инвестиции",
-    "Kazakhstan",
-  ],
 }
 
 export const viewport: Viewport = {
