@@ -29,7 +29,9 @@ export async function GET() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  return NextResponse.json({ finances })
+  const response = NextResponse.json({ finances })
+  response.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=60")
+  return response
 }
 
 export async function POST(req: Request) {

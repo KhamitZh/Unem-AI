@@ -53,7 +53,9 @@ export async function GET(req: Request) {
   userStatus: userBooks?.find((ub) => ub.book_id === book.id) ?? null,
   }))
 
-  return NextResponse.json({ books: booksWithStatus })
+  const response = NextResponse.json({ books: booksWithStatus })
+  response.headers.set("Cache-Control", "private, max-age=300, stale-while-revalidate=600")
+  return response
 }
 
 export async function POST(req: Request) {

@@ -84,6 +84,32 @@ export default function AnalyticsPage() {
 
   async function loadData() {
     setLoading(true)
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-background pb-24">
+          <div className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur px-4 py-3 flex items-center gap-3">
+            <button onClick={() => router.back()} className="rounded-full p-2 hover:bg-muted/40 transition-colors">
+              <ArrowLeft className="size-5" />
+            </button>
+            <h1 className="text-lg font-semibold">{tx.title}</h1>
+          </div>
+          <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              {[1,2,3].map((i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                  <div className="h-3 w-16 rounded-full bg-muted/50 animate-pulse" />
+                  <div className="h-6 w-24 rounded-full bg-muted/50 animate-pulse" />
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="h-4 w-32 rounded-full bg-muted/50 animate-pulse mb-4" />
+              <div className="h-52 w-full rounded-xl bg-muted/50 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      )
+    }
     const now = new Date()
     let from = ""
     let to = now.toISOString().split("T")[0]
