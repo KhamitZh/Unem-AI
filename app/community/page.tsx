@@ -37,6 +37,41 @@ export default function CommunityPage() {
   const [sending, setSending] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [openComments, setOpenComments] = useState<string | null>(null)
+  const [comments, setComments] = useState<Record<string, any[]>>({})
+  const [commentInput, setCommentInput] = useState("")
+  const [sendingComment, setSendingComment] = useState(false)
+
+  async function loadComments(postId: string) {
+    const res = await fetch(`/api/community/comments?post_id=${postId}`)
+    const data = await res.json()
+    setComments((prev) => ({ ...prev, [postId]: data.comments ?? [] }))
+  }
+
+  async function sendComment(postId: string) {
+    if (!commentInput.trim()) return
+    setSendingComment(true)
+    const res = await fetch("/api/community/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ post_id: postId, content: commentInput.trim() }),
+    })
+    const data = await res.json()
+    if (data.comment) {
+      setComments((prev) => ({ ...prev, [postId]: [...(prev[postId] ?? []), data.comment] }))
+      setCommentInput("")
+    }
+    setSendingComment(false)
+  }
+
+  function toggleComments(postId: string) {
+    if (openComments === postId) {
+      setOpenComments(null)
+    } else {
+      setOpenComments(postId)
+      if (!comments[postId]) loadComments(postId)
+    }
+  }
 
   const labels = {
     kk: {
@@ -78,6 +113,8 @@ export default function CommunityPage() {
   }
 
   const tx = labels[locale as keyof typeof labels] ?? labels.ru
+
+  const totalComments = Object.values(comments).reduce((s, arr) => s + (arr?.length ?? 0), 0)
 
   useEffect(() => {
     loadPosts()
@@ -153,8 +190,21 @@ export default function CommunityPage() {
           <Users className="size-5 text-primary" />
           <h1 className="text-lg font-semibold">{tx.title}</h1>
         </div>
+        <button
+          onClick={() => setOpenComments(openComments ? null : (posts[0]?.id ?? null))}
+          className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            openComments
+              ? "bg-primary/10 text-primary"
+              : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+          }`}
+        >
+          <MessageSquare className="size-3.5" />
+          {totalComments}
+        </button>
         <span className="ml-auto text-xs text-muted-foreground">{posts.length}</span>
-      </div>
+      </div>  
+
+      
 
       <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
 
@@ -271,6 +321,38 @@ export default function CommunityPage() {
                     {post.likes ?? 0}
                   </button>
                 </div>
+                {openComments === post.id && (
+                  <div className="border-t border-border pt-3 space-y-3">
+                    {(comments[post.id] ?? []).map((comment) => (
+                      <div key={comment.id} className="flex items-start gap-2">
+                        <div className="size-6 rounded-full bg-primary/15 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
+                          {(comment.profiles?.name?.[0] ?? "?").toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-muted-foreground">{comment.profiles?.name ?? "—"}</p>
+                          <p className="text-xs leading-relaxed">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder={locale === "kk" ? "Комментарий..." : locale === "ru" ? "Комментарий..." : "Comment..."}
+                        value={commentInput}
+                        onChange={(e) => setCommentInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && sendComment(post.id)}
+                        className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary transition-colors"
+                      />
+                      <button
+                        onClick={() => sendComment(post.id)}
+                        disabled={sendingComment || !commentInput.trim()}
+                        className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition disabled:opacity-50"
+                      >
+                        <Send className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
