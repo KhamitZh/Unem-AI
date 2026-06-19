@@ -150,6 +150,7 @@ const kk: Dict = {
   crypto: "Крипто",
   tax: "Салық",
   aiInvest: "AI Инвестиция",
+  friends: "Достар",
 }
 
 const ru: Dict = {
@@ -291,6 +292,7 @@ const ru: Dict = {
   crypto: "Крипто",
   tax: "Налоги",
   aiInvest: "AI Инвестиции",
+  friends: "Друзья",
 }
 
 const en: Dict = {
@@ -432,6 +434,7 @@ const en: Dict = {
   crypto: "Crypto",
   tax: "Tax",
   aiInvest: "AI Invest",
+  friends: "Friends",
 }
 
 const dictionaries: Record<Locale, Dict> = { kk, ru, en }
