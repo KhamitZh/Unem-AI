@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { X, TrendingUp, TrendingDown, Target, BarChart2, DollarSign, Receipt, BookOpen, Users, Trophy, Gift, Percent, LineChart, Building2, Sunset, Sparkles, Search, ChevronRight, Crown, Zap } from "lucide-react"
+import { X, TrendingUp, TrendingDown, Target, BarChart2, DollarSign, Receipt, BookOpen, Users, Trophy, Gift, Percent, LineChart, Building2, Sunset, Sparkles, Search, ChevronRight, Crown, Zap, FileText, Activity } from "lucide-react"
 import { useApp } from "@/lib/store"
 import { useSubscription } from "@/lib/use-subscription"
 import { useState } from "react"
@@ -31,6 +31,7 @@ const FUNCTION_GROUPS = [
       { icon: BarChart2, kk: "Диаграммалар", ru: "Диаграммы", en: "Charts", href: "/analytics", color: "#60a5fa" },
       { icon: Target, kk: "Мақсат тренер", ru: "Тренер целей", en: "Goal Tracker", href: "/goal-tracker", color: "#c084fc" },
       { icon: Sparkles, kk: "AI Жоспар", ru: "AI План", en: "AI Plan", href: "/financial-plan", color: "#818cf8" },
+      { icon: Sparkles, kk: "AI Инвестиция", ru: "AI Инвестиции", en: "AI Invest", href: "/ai-invest", color: "#a855f7" },
     ],
   },
   {
@@ -43,6 +44,16 @@ const FUNCTION_GROUPS = [
       { icon: Building2, kk: "Депозиттер", ru: "Депозиты", en: "Deposits", href: "/deposits", color: "#34d399" },
       { icon: Sunset, kk: "Зейнет", ru: "Пенсия", en: "Retirement", href: "/retirement", color: "#fb923c" },
       { icon: DollarSign, kk: "Валюта", ru: "Валюта", en: "Currency", href: "/currency", color: "#fbbf24" },
+      { icon: FileText, kk: "Салық", ru: "Налоги", en: "Tax", href: "/tax", color: "#60a5fa" },
+    ],
+  },
+  {
+    kk: "📈 Нарық",
+    ru: "📈 Рынок",
+    en: "📈 Market",
+    items: [
+      { icon: Activity, kk: "KASE Нарық", ru: "Рынок KASE", en: "KASE Market", href: "/stocks", color: "#38bdf8" },
+      { icon: Activity, kk: "Крипто", ru: "Крипто", en: "Crypto", href: "/crypto", color: "#fbbf24" },
     ],
   },
   {
@@ -60,8 +71,10 @@ const FUNCTION_GROUPS = [
     items: [
       { icon: Users, kk: "Қоғамдастық", ru: "Сообщество", en: "Community", href: "/community", color: "#22d3ee" },
       { icon: Trophy, kk: "Лидерлер", ru: "Лидеры", en: "Leaderboard", href: "/leaderboard", color: "#fbbf24" },
+      { icon: Users, kk: "Достар", ru: "Друзья", en: "Friends", href: "/friends", color: "#60a5fa" },
       { icon: Users, kk: "Отбасы", ru: "Семья", en: "Family", href: "/family", color: "#f472b6" },
       { icon: Gift, kk: "Дос шақыру", ru: "Пригласить", en: "Invite", href: "/referral", color: "#f472b6" },
+      { icon: Trophy, kk: "Жетістіктер", ru: "Достижения", en: "Achievements", href: "/achievements", color: "#facc15" },
     ],
   },
 ]
