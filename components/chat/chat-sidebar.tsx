@@ -204,6 +204,7 @@ export function ChatSidebar({ showMobile, onMobileClose }: Props) {
                   { icon: Users, label: locale === "kk" ? "Отбасы" : locale === "ru" ? "Семья" : "Family", href: "/family", color: "text-pink-400" },
                   { icon: Gift, label: locale === "kk" ? "Дос шақыру" : locale === "ru" ? "Пригласить" : "Invite", href: "/referral", color: "text-pink-400" },
                   { icon: Users, label: locale === "kk" ? "Достар" : locale === "ru" ? "Друзья" : "Friends", href: "/friends", color: "text-blue-400" },
+                  { icon: Trophy, label: locale === "kk" ? "Жетістіктер" : locale === "ru" ? "Достижения" : "Achievements", href: "/achievements", color: "text-yellow-400" },
                 ],
               },
             ].map((group) => (
